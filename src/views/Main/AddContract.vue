@@ -87,7 +87,7 @@
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Τρόπος Πληρωμής</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="method">
                             <option>Τρόπος Πληρωμής</option>
-                            <option value="1">Δώσεις</option>
+                            <option value="1">Δόσεις</option>
                             <option value="2">Ολική Εξόφληση</option>
                         </CFormSelect>
                     </CCol>
@@ -104,6 +104,7 @@
 
 <script>
 import { CCardBody } from '@coreui/vue';
+import axios from 'axios';
 
 export default {
     data() {
@@ -123,6 +124,18 @@ export default {
     },
     methods: {
         Add() {
+            axios.post('/contracts',{
+                afm:this.afmpelati,
+                conumber:this.connumber,
+                insuranceid: this.asfal,
+                branchid:this.branch,
+                startdate:this.startdate,
+                enddate: this.enddate,
+                clear: this.clean,
+                mikta:this.mikta,
+                promithia: this.prom,
+                paymentmethod: this.method
+            }).catch(err => console.log(err));
         }
     },
     components: { CCardBody }

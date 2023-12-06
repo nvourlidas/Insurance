@@ -60,16 +60,16 @@
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Φύλλο</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="gender">
                             <option>Φύλο</option>
-                            <option value="1">Άνδρας</option>
-                            <option value="2">Γυναίκα</option>
+                            <option value="A">Άνδρας</option>
+                            <option value="G">Γυναίκα</option>
                         </CFormSelect>
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ιδιότητα</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="status">
                             <option>Ιδιότητα</option>
-                            <option value="1">Φυσικό Πρόσωπο</option>
-                            <option value="2">Νομικό Πρόσωπο</option>
+                            <option value="A">Φυσικό Πρόσωπο</option>
+                            <option value="N">Νομικό Πρόσωπο</option>
                         </CFormSelect>
                     </CCol>
                 </CRow>
@@ -85,7 +85,7 @@
 
 <script>
 import { CCardHeader, CFormLabel } from '@coreui/vue';
-
+import axios from 'axios';
 export default {
     data() {
         return {
@@ -104,6 +104,18 @@ export default {
 
     methods:{
         Add(){
+            axios.post('/customer', {
+                name: this.name,
+                surname: this.surname,
+                email: this.email,
+                cellphone: this.cellphone,
+                phone: this.phone,
+                gender: this.gender,
+                postcode: this.tk,
+                property: this.status,
+                birthday: this.birthdate,
+                afm: this.afm
+            }).catch(err => console.log(err));
     },
 },
     components: { CCardHeader, CFormLabel }
