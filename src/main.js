@@ -8,7 +8,7 @@ import CIcon from '@coreui/icons-vue'
 import { iconsSet as icons } from '@/assets/icons'
 import DocsExample from '@/components/DocsExample'
 
-axios.defaults.baseURL ='http://35.177.155.106:3000'
+axios.defaults.baseURL ='https://insuranceapi-3b41e9ce13a4.herokuapp.com/'
 
 const app = createApp(App)
 app.use(store)

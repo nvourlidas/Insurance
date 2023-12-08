@@ -1,4 +1,5 @@
 <template>
+    <CAlert color="success" :visible="live">Επιτυχημέμη Εισαγωγή Πελάτη</CAlert>
     <CCard>
         <CForm @submit.prevent="Add">
             <CCardHeader style="text-align: center; padding: 20px; background-color: rgba(100, 100, 96, 0.158);">
@@ -50,9 +51,7 @@
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημερομηνία Γέννησης</CFormLabel>
-                            <CFormInput type="date" floatingLabel="Ημ. Γέννησης" placeholder="Ημ. Γέννησης"
-                                v-model="birthdate" pattern="\d{2}/\d{2}/\d{2}" />
-                        
+                        <VueDatePicker v-model="birthdate" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy" model-type="dd-MM-yyyy"></VueDatePicker>
                     </CCol>
                 </CRow>
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
@@ -75,7 +74,7 @@
                 </CRow>
             </CCardBody>
             <CCardFooter style="text-align: center; padding: 20px;">
-                <CButton type="submit" size="bg" color="primary">
+                <CButton type="submit" size="lg" color="primary">
                         <CIcon name="cil-check-circle" /> Εισαγωγή Πελάτη
                     </CButton>
             </CCardFooter>
@@ -86,6 +85,9 @@
 <script>
 import { CCardHeader, CFormLabel } from '@coreui/vue';
 import axios from 'axios';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+
 export default {
     data() {
         return {
@@ -99,11 +101,13 @@ export default {
             birthdate: '',
             gender: '',
             status: '',
+            live: false,
         };
     },
 
     methods:{
         Add(){
+            if (confirm("Είστε σίγουρος ότι θέτε να γίνει Αποστολή;")) {
             axios.post('/customer', {
                 name: this.name,
                 surname: this.surname,
@@ -115,9 +119,26 @@ export default {
                 property: this.status,
                 birthday: this.birthdate,
                 afm: this.afm
-            }).catch(err => console.log(err));
+            }).catch(err => console.log(err))
+
+            this.name= '',
+            this.surname= '',
+            this.email= '',
+            this.cellphone= '',
+            this.afm= '',
+            this.phone= '',
+            this.tk= '',
+            this.birthdate= '',
+            this.gender= '',
+            this.status= '',
+            this.live= true
+        }
+
+        setTimeout(() => {
+                this.live = false;
+            }, 3000);
     },
 },
-    components: { CCardHeader, CFormLabel }
+    components: { CCardHeader, CFormLabel, VueDatePicker }
 }
 </script>

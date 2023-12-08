@@ -29,6 +29,11 @@ const routes = [
         name: 'AddContract',
         component: () => import('@/views/Main/AddContract'),
       },
+      {
+        path: '/Customers',
+        name: 'Customers',
+        component: () => import('@/views/Main/Customers'),
+      },
     ],
   },
   {
