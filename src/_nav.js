@@ -15,6 +15,6 @@ export default [
     component: 'CNavItem',
     name: 'Συμβόλαια',
     to: '/dashboard',
-    icon: 'cilDescription',
+    icon: 'cil-file',
   },
 ]

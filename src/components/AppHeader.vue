@@ -1,11 +1,11 @@
 <template>
-  <CHeader position="sticky" class="mb-4">
+  <CHeader position="sticky" class="mb-4" style="background-color: rgba(255, 255, 255, .1);">
     <CContainer fluid class="main">
       <CHeaderToggler class="ps-1" @click="$store.commit('toggleSidebar')">
         <CIcon icon="cil-menu" size="lg" />
       </CHeaderToggler>
-      <CButton class="but" color="success" @click="goTo(1)"><CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης </CButton>
-      <CButton class="but" color="info" @click="goTo(2)"><CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο </CButton>
+      <CButton class="but" color="success" variant="outline" @click="goTo(1)"><b><CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης</b> </CButton>
+      <CButton class="but" color="info" variant="outline" @click="goTo(2)"><b><CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο </b></CButton>
     </CContainer>
   </CHeader>
 </template>
@@ -39,6 +39,7 @@ export default {
 </script>
 
 <style scoped>
+
 .main{
   display: flex;
   align-items: center;
@@ -46,7 +47,7 @@ export default {
 }
 
 .but{
-  color: aliceblue;
+  
   margin-right: 1%;
 }
 </style>

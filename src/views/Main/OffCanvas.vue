@@ -1,21 +1,48 @@
 <template>
     <COffcanvasBody>
-        <div class="main">
-            <div class="item1">
-                <h3 style="margin-bottom: 2%;">Λεπτομέριες Συμβολαίου</h3>
-                <p><b>Έναρξη:</b> {{ body.startdate }}</p>
-                <p><b>Λήξη:</b> {{ body.enddate }}</p>
-                <p><b>Καθαρά:</b> {{ body.clear }} €</p>
-                <p><b>Μεικτά:</b> {{ body.mikta }} €</p>
-                <p><b>Προμήθεια:</b> {{ body.promithia }} €</p>
-            </div>
-            <div class="item2">
-                <h3>Καλύψεις Συμβολαίου</h3>
-            </div>
-            <div class="item3">
-                <h3>Ζημίες</h3>
-            </div>
-        </div>
+        <CTable striped bordered>
+            <CTableHead>
+                <CTableRow style="text-align: center;">
+                    <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Κλάδος Ασφάλησης</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Ημερομηνία 'Εναρξης</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Καθαρά</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Μεικτά</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Προμήθεια</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Μέθοδος Πληρωμής</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Ομαδικό</CTableHeaderCell>
+                </CTableRow>
+            </CTableHead>
+            <CTableBody>
+                <CTableRow style="text-align: center;">
+                    <CTableDataCell>{{ body.conumber }}</CTableDataCell>
+                    <CTableDataCell>{{ body.name }}</CTableDataCell>
+                    <CTableDataCell>{{ body.bname }}</CTableDataCell>
+                    <CTableDataCell>{{ body.startdate }}</CTableDataCell>
+                    <CTableDataCell>{{ body.enddate }}</CTableDataCell>
+                    <CTableDataCell>{{ body.clear }}</CTableDataCell>
+                    <CTableDataCell>{{ body.mikta }}</CTableDataCell>
+                    <CTableDataCell>{{ body.promithia }}</CTableDataCell>
+                    <CTableDataCell v-if="body.paymentmethod == 1">Μηνιαία</CTableDataCell>
+                    <CTableDataCell v-if="body.paymentmethod == 2">3μηνη</CTableDataCell>
+                    <CTableDataCell v-if="body.paymentmethod == 3">6μηνη</CTableDataCell>
+                    <CTableDataCell v-if="body.paymentmethod == 4">Ετήσια</CTableDataCell>
+                    <CTableDataCell v-if="body.paymentmethod == 5">'Εως Λήξη Συμβολαίου</CTableDataCell>
+                    <CTableDataCell v-if="body.omadiko == 1">NAI</CTableDataCell>
+                    <CTableDataCell v-if="body.omadiko == 2">ΟΧΙ</CTableDataCell>
+                </CTableRow>
+            </CTableBody>
+        </CTable>
+        <h3>Καλύψεις</h3>
+        <CListGroup>
+            <CListGroupItem>ΠΡΟΣΚΡΟΥΣΗ ΟΧΗΜΑΤΟΣ</CListGroupItem>
+            <CListGroupItem>ΚΛΟΠΗ</CListGroupItem>
+            <CListGroupItem>ΥΛΙΚΕΣ ΖΗΜΙΕΣ</CListGroupItem>
+            <CListGroupItem>ΕΠΙΔΟΜΑΤΑ ΥΓΕΙΑΣ</CListGroupItem>
+            <CListGroupItem>ΝΟΣΗΛΕΙΑ ΜΟΝΟ ΑΠΟ ΑΤΥΧΗΜΑ</CListGroupItem>
+        </CListGroup>
     </COffcanvasBody>
 </template>
 
@@ -27,22 +54,4 @@ export default {
 }
 </script>
 
-<style scoped>
-
-.main{
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    align-items: center;
-}
-
-.item1{
-    flex: 1;
-}
-.item2{
-    flex: 1;
-}
-.item3{
-    flex: 1;
-}
-</style>
+<style scoped></style>

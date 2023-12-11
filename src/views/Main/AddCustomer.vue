@@ -51,7 +51,7 @@
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημερομηνία Γέννησης</CFormLabel>
-                        <VueDatePicker v-model="birthdate" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy" model-type="dd-MM-yyyy"></VueDatePicker>
+                        <VueDatePicker v-model="birthdate" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy" model-type="yyyy-MM-dd"></VueDatePicker>
                     </CCol>
                 </CRow>
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
@@ -75,7 +75,7 @@
             </CCardBody>
             <CCardFooter style="text-align: center; padding: 20px;">
                 <CButton type="submit" size="lg" color="primary">
-                        <CIcon name="cil-check-circle" /> Εισαγωγή Πελάτη
+                        <CIcon :icon="icon.cilSave" size="xl"/> Εισαγωγή Πελάτη
                     </CButton>
             </CCardFooter>
         </CForm>
@@ -87,6 +87,8 @@ import { CCardHeader, CFormLabel } from '@coreui/vue';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { CIcon } from '@coreui/icons-vue';
+import * as icon from '@coreui/icons';
 
 export default {
     data() {
@@ -103,6 +105,11 @@ export default {
             status: '',
             live: false,
         };
+    },
+    setup() {
+        return {
+            icon,
+        }
     },
 
     methods:{
@@ -139,6 +146,6 @@ export default {
             }, 3000);
     },
 },
-    components: { CCardHeader, CFormLabel, VueDatePicker }
+    components: { CCardHeader, CFormLabel, VueDatePicker, CIcon }
 }
 </script>

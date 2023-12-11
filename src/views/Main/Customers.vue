@@ -1,8 +1,16 @@
 <template>
     <CInputGroup class="mb-3" size="lg">
-        <CInputGroupText id="inputGroup-sizing-lg">Αναζήτηση</CInputGroupText>
-        <CFormInput aria-label="Username" aria-describedby="inputGroup-sizing-lg"  v-model="searchQuery" style="width: 20%;"/>
+        <CInputGroupText id="inputGroup-sizing-lg" style="border: 2px solid;">Αναζήτηση</CInputGroupText>
+        <CFormInput aria-label="Username" aria-describedby="inputGroup-sizing-lg" v-model="searchQuery"
+            style="width: 20%; border: 2px solid;" />
     </CInputGroup>
+    <div class="top">
+        <CButton color="primary" variant="outline" disabled>
+            <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
+                Σύνολο Πελατών: <b>{{ sunolo }}</b>
+            </CButton>
+        <CButton  color="success" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b><CIcon :icon="icon.cilUserPlus" size="xl" ></CIcon> Νέος Πελάτης</b> </CButton>
+    </div>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -70,10 +78,11 @@ export default {
             currentPage: 1,
             itemsPerPage: 10,
             searchQuery: '',
+            sunolo: '',
         };
     },
     created() {
-        axios.get('/customer').then(res => { this.table = res.data; });
+        axios.get('/customer').then(res => { this.table = res.data, this.sunolo = res.data.length });
     },
 
     computed: {
@@ -115,7 +124,7 @@ export default {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete('/customer', {
                     id: id
-                }).catch(err => console.log(err, id));
+                }).catch(err => console.log(err, id))
             }
         },
         showModal(id) {
@@ -151,11 +160,16 @@ label {
     display: inline-block;
     background-color: none;
     color: black;
-
     padding: 0.5rem;
     font-family: sans-serif;
     border-radius: 0.3rem;
     cursor: pointer;
+}
+
+.top{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2%;
 
 }
 </style>

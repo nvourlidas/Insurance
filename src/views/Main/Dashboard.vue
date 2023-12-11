@@ -1,7 +1,7 @@
 <template>
     <CRow>
         <CCol :xs="4">
-            <CWidgetStatsC class="mb-3" :value="totalCus" inverse color="success" title="ΠΕΛΑΤΕΣ">
+            <CWidgetStatsC class="mb-3" :value="totalCus" inverse color="success" title="ΠΕΛΑΤΕΣ" @click="this.$router.push('/Customers')" style="cursor: pointer;">
                 <template #icon>
                     <CIcon icon="cil-people" height="36" />
                 </template>
@@ -15,7 +15,7 @@
             </CWidgetStatsC>
         </CCol>
         <CCol :xs="4">
-            <CWidgetStatsC class="mb-3" :value="ligoun" inverse color="danger" title="ληγουν σε 31 μερεσ">
+            <CWidgetStatsC class="mb-3" :value="ligoun" inverse color="danger" title="ληγουν σε 31 μερεσ" @click="this.$router.push('/AddCustomer')" style="cursor: pointer;">
                 <template #icon>
                     <CIcon :icon="icon.cilBellExclamation"  height="36" />
                 </template>
@@ -45,7 +45,7 @@ export default {
             totalCus: '',
             table2: [],
             totalCon: '',
-            ligoun: '0',
+            ligoun: '',
             todayDate: new Date(),
             futureDate: null,
         }
@@ -54,6 +54,7 @@ export default {
     created() {
         this.getCus()
         this.getCon()
+        
     },
 
     methods: {
@@ -65,27 +66,23 @@ export default {
         },
         getCon() {
             this.futureDate = addDays(this.todayDate, 31);
-            this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
-            axios.get('/contracts').then(res => {
+            this.futureDate = format(this.futureDate, 'dd-MM-yyyy');
+            axios.get('/contracts-insurance').then(res => {
                 this.table2 = res.data
                 this.totalCon = res.data.length
+                // this.ligoun=0
                 // for (var i = 0; i < res.data.length; i++) {
-                //     var date = this.getDate(res.data.enddate)
-                //     if (date < this.futureDate) {
+                //     var date = res.data[i].enddate
+                //     if (date >= this.futureDate) {
                 //         this.ligoun += 1
                 //     }
+                //     console.log(this.futureDate)
                 // }
+                var expires = res.data.filter(item => item.enddate <= this.futureDate);
+                this.ligoun = expires.length
+                console.log(expires)
             })
-        },
-        getDate(dt) {
-            const year = dt.getFullYear();
-            const month = this.padZero(dt.getMonth() + 1);
-            const day = this.padZero(dt.getDate());
-
-            return `${year}-${month}-${day}`;
-        },
-        padZero(value) {
-            return value.toString().padStart(2, '0');
+            
         },
     }
 }
