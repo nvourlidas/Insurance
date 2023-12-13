@@ -56,8 +56,8 @@
                             <CTableBody>
                                 <CTableRow v-for="(entry, id) in con" :item="entry" :key="id" style="text-align: center;">
                                     <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
-                                    <CTableDataCell>{{ entry.name }}</CTableDataCell>
-                                    <CTableDataCell>{{ entry.bname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.bname }} <p v-if="entry.pinakida"> Αριθμός Κυκλοφορίας: {{ entry.pinakida }}</p></CTableDataCell>
                                     <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                                     <CTableDataCell v-if="entry.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="entry.omadiko == 2">ΟΧΙ</CTableDataCell>

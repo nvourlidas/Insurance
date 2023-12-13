@@ -6,32 +6,32 @@
     </CInputGroup>
     <div class="top">
         <CButton color="primary" variant="outline" disabled>
-            <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
-                Σύνολο Πελατών: <b>{{ sunolo }}</b>
+            <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
+                Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
             </CButton>
-        <CButton  color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b><CIcon :icon="icon.cilUserPlus" size="xl" ></CIcon> Νέος Πελάτης</b> </CButton>
+        <CButton  color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b><CIcon :icon="icon.cilClipboard" size="xl" ></CIcon> Νέο Συμβόλαιο</b> </CButton>
     </div>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
-                <CTableHeaderCell scope="col">Ονοματεπώνυμο</CTableHeaderCell>
-                <CTableHeaderCell scope="col">ΑΦΜ</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Κινητό</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Εισαγωγή Αρχείου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
             </CTableRow>
         </CTableHead>
-        <CTableBody>
+        <CTableBody> 
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
-                <CTableDataCell>{{ entry.afm }}</CTableDataCell>
-                <CTableDataCell>{{ entry.cellphone }}</CTableDataCell>
-                <CTableDataCell>{{ entry.email }}</CTableDataCell>
+                <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
+                <CTableDataCell><div v-for="(e, id2) in table2" :item="e" :key="id2"><p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p></div></CTableDataCell>
+                <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.cid)">
-                        <CIcon :icon="icon.cilAddressBook" height="32"></CIcon>
+                    <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
+                        <CIcon :icon="icon.cilDescription" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
@@ -41,7 +41,7 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.conid)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -57,33 +57,59 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con"></CusModal>
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con"></ConModal>
 </template>
-
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
 import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
-import CusModal from './CusModel.vue'
+import ConModal from './ConModel.vue'
+import { addDays, format } from 'date-fns';
 
 
 export default {
     data() {
         return {
             table: [],
+            table2: [],
+            stable:[],
             xlDemo: false,
             cus: '',
-            con: [],
+            con: '',
             currentPage: 1,
             itemsPerPage: 10,
             searchQuery: '',
             sunolo: '',
+            todayDate: new Date(),
+            futureDate: null,
         };
     },
     created() {
-        axios.get('/customer').then(res => { this.table = res.data, this.sunolo = res.data.length });
+        axios.get('/contracts-insurance').then(res => { 
+            this.futureDate = addDays(this.todayDate, 31);
+      this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
+      this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
+      var j = 0
+            for(var i=0; i<res.data.length; i++){
+                var dateParts = res.data[i].enddate.split('-');
+          var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+
+          var date = new Date(formattedDate);
+          var dat =format(date, 'yyyy-MM-dd')
+                if(dat >= this.todayDate && dat <= this.futureDate){
+                    this.table[j] = res.data[i]
+                    j++
+                }
+                
+            }
+            this.sunolo = this.table.length 
+        });
+        axios.get('/customer').then(res => {this.table2 = res.data})
+        
     },
+
+
 
     computed: {
         totalPages() {
@@ -108,6 +134,7 @@ export default {
     methods: {
         changePage(pageNumber) {
             this.currentPage = pageNumber;
+            console.log([...this.table, ...this.table2])
         },
         prevPage() {
             if (this.currentPage > 1) {
@@ -130,23 +157,18 @@ export default {
         showModal(id) {
             this.xlDemo = true;
             for (var i = 0; i < this.table.length; i++) {
-                if (id == this.table[i].cid) {
-                    this.cus = this.table[i]
+                if (id == this.table[i].conid) {
+                    this.con = this.table[i]
                 }
             }
-            axios.get('/contracts-insurance').then(res => {
-                var j = 0;
-                this.con = []
-                for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].custid == id) {
-                        this.con[j] = res.data[i]
-                        j++
-                    }
+            for( i=0; i<this.table2.length; i++){
+                if(this.con.custid == this.table2[i].cid){
+                    this.cus = this.table2[i]
                 }
-            })
+            }
         },
     },
-    components: { CTableBody, CButton, CIcon, CusModal },
+    components: { CTableBody, CButton, CIcon, ConModal },
     setup() {
         return {
             icon,

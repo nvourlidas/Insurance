@@ -14,7 +14,29 @@ export default [
   {
     component: 'CNavItem',
     name: 'Συμβόλαια',
-    to: '/dashboard',
+    to: '/Contracts',
     icon: 'cil-file',
+    items: [
+        {
+          component: 'CNavItem',
+          name: 'Όλα τα Συμβόλαια',
+          to: '/Contracts',
+        },
+        {
+          component: 'CNavItem',
+          name: 'Προς Λήξη',
+          to: '/Expire',
+        },
+        {
+          component: 'CNavItem',
+          name: 'Προς Πληρωμή',
+          to: '/Expire',
+        },
+        {
+          component: 'CNavItem',
+          name: 'Ανα Ασφαλιστική',
+          to: '/AnaAsfal',
+        },
+    ]
   },
 ]

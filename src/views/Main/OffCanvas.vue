@@ -18,8 +18,8 @@
             <CTableBody>
                 <CTableRow style="text-align: center;">
                     <CTableDataCell>{{ body.conumber }}</CTableDataCell>
-                    <CTableDataCell>{{ body.name }}</CTableDataCell>
-                    <CTableDataCell>{{ body.bname }}</CTableDataCell>
+                    <CTableDataCell>{{ body.iname }}</CTableDataCell>
+                    <CTableDataCell>{{ body.bname }} <p v-if="body.pinakida"> Αριθμός Κυκλοφορίας: {{ body.pinakida }}</p></CTableDataCell>
                     <CTableDataCell>{{ body.startdate }}</CTableDataCell>
                     <CTableDataCell>{{ body.enddate }}</CTableDataCell>
                     <CTableDataCell>{{ body.clear }}</CTableDataCell>

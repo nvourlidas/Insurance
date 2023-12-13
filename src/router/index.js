@@ -34,6 +34,21 @@ const routes = [
         name: 'Customers',
         component: () => import('@/views/Main/Customers'),
       },
+      {
+        path: '/Contracts',
+        name: 'Contracts',
+        component: () => import('@/views/Main/Contracts'),
+      },
+      {
+        path: '/Expire',
+        name: 'Expire',
+        component: () => import('@/views/Main/Expire'),
+      },
+      {
+        path: '/AnaAsfal',
+        name: 'AnaAsfal',
+        component: () => import('@/views/Main/AnaAsfal'),
+      },
     ],
   },
   {

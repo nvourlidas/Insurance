@@ -21,19 +21,21 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημ. Έναρξης</CFormLabel>
-                        <VueDatePicker v-model="startdate" placeholder="Ημερομηνία Έναρξης" format="dd-MM-yyyy" model-type="yyyy-MM-dd"></VueDatePicker>
+                        <VueDatePicker v-model="startdate" placeholder="Ημερομηνία Έναρξης" format="dd-MM-yyyy"
+                            model-type="yyyy-MM-dd"></VueDatePicker>
 
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημ. Λήξης</CFormLabel>
-                        <VueDatePicker v-model="enddate" placeholder="Ημερομηνία Λήξης" format="dd-MM-yyyy" model-type="yyyy-MM-dd"></VueDatePicker>
+                        <VueDatePicker v-model="enddate" placeholder="Ημερομηνία Λήξης" format="dd-MM-yyyy"
+                            model-type="yyyy-MM-dd"></VueDatePicker>
                     </CCol>
                     <CRow :xs="{ gutter: 2 }" style="padding: 20px; text-align: center;">
                         <CCol md>
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Καθαρά</CFormLabel>
                             <CInputGroup class="mb-3">
                                 <CInputGroupText>€</CInputGroupText>
-                                <CFormInput type="number" placeholder="0.00" v-model="clean" />
+                                <CFormInput type="text" placeholder="0.00" v-model="clean" />
                             </CInputGroup>
 
                         </CCol>
@@ -41,14 +43,14 @@
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Μεικτά</CFormLabel>
                             <CInputGroup class="mb-3">
                                 <CInputGroupText>€</CInputGroupText>
-                                <CFormInput type="number" placeholder="0.00" v-model="mikta" />
+                                <CFormInput type="text" placeholder="0.00" v-model="mikta" />
                             </CInputGroup>
                         </CCol>
                         <CCol md>
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Προμήθεια</CFormLabel>
                             <CInputGroup class="mb-3">
                                 <CInputGroupText>€</CInputGroupText>
-                                <CFormInput type="number" placeholder="0.00" v-model="prom" />
+                                <CFormInput type="text" placeholder="0.00" v-model="prom" />
                             </CInputGroup>
                         </CCol>
                     </CRow>
@@ -57,7 +59,7 @@
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ασφαλιστική</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="asfal">
-                            <option v-for="entry in insur" :key="entry.inid" :value="entry.inid"> {{ entry.name }}</option>
+                            <option v-for="entry in insur" :key="entry.inid" :value="entry.inid"> {{ entry.iname }}</option>
                         </CFormSelect>
                     </CCol>
                     <CCol md>
@@ -75,6 +77,12 @@
                             <option value="9">ΤΕΧΝΙΚΩΝ ΑΣΦΑΛΗΣΕΩΝ</option>
                             <option value="10">ΜΕΤΑΦΟΡΩΝ</option>
                         </CFormSelect>
+                    </CCol>
+                    <CCol md v-if="branch == 1">
+                        <CFormLabel style="font-size: 20px; font-weight: bold;">Αριθμός Κυκλοφορίας</CFormLabel>
+                        <CFormInput type="text" floatingLabel="Αριθμός Κυκλοφορίας" placeholder="Αριθμός Κυκλοφορίας"
+                            v-model="pinakida" />
+
                     </CCol>
                 </CRow>
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
@@ -98,10 +106,14 @@
                         </CFormSelect>
                     </CCol>
                 </CRow>
+                <CFormInput type="file" id="upload" v-model="cfile" hidden  />
+                    <label for="upload" style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Ανέβασμα αρχείου Συμβολαίου </b>
+                        <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
+                    </label>
             </CCardBody>
             <CCardFooter style="text-align: center; padding: 20px;">
                 <CButton type="submit" size="lg" color="primary">
-                    <CIcon :icon="icon.cilSave" size="xl"/> Εισαγωγή Συμβολαίου
+                    <CIcon :icon="icon.cilSave" size="xl" /> Εισαγωγή Συμβολαίου
                 </CButton>
             </CCardFooter>
         </CForm>
@@ -130,7 +142,9 @@ export default {
             branch: '',
             status: '',
             method: '',
+            pinakida: '',
             omadiko: '',
+            cfile: '',
             live: false,
             insur: [],
         };
@@ -141,12 +155,12 @@ export default {
         }
     },
 
-    created(){
+    created() {
         this.getInsuranes()
     },
     methods: {
         Add() {
-            if (confirm("Είστε σίγουρος ότι θέτε να γίνει Αποστολή;")) {
+            if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Αποστολή;")) {
                 axios.post('/contracts', {
                     afm: this.afmpelati,
                     conumber: this.connumber,
@@ -158,10 +172,11 @@ export default {
                     mikta: this.mikta,
                     promithia: this.prom,
                     paymentmethod: this.method,
-                    omadiko: this.omadiko
+                    omadiko: this.omadiko,
+                    pinakida: this.pinakida
                 }).catch(err => console.log(err))
 
-                this.connumber =''
+                this.connumber = ''
                 this.afmpelati = ''
                 this.startdate = ''
                 this.enddate = ''
@@ -170,9 +185,9 @@ export default {
                 this.prom = ''
                 this.asfal = ''
                 this.branch = ''
-                this.status =''
+                this.status = ''
                 this.method = ''
-                this.omadiko= ''
+                this.omadiko = ''
                 this.live = true
             }
             setTimeout(() => {
@@ -180,13 +195,12 @@ export default {
             }, 3000);
         },
 
-        getInsuranes(){
+        getInsuranes() {
             axios.get('/insurances')
-            .then(res=>{
-                this.insur=res.data
-                console.log(this.insur)
-            })
-                
+                .then(res => {
+                    this.insur = res.data
+                })
+
         }
     },
     components: { CCardBody, VueDatePicker, CIcon }

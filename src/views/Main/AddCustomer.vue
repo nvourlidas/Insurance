@@ -114,7 +114,7 @@ export default {
 
     methods:{
         Add(){
-            if (confirm("Είστε σίγουρος ότι θέτε να γίνει Αποστολή;")) {
+            if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Αποστολή;")) {
             axios.post('/customer', {
                 name: this.name,
                 surname: this.surname,
