@@ -7,9 +7,11 @@
     <div class="top">
         <CButton color="primary" variant="outline" disabled>
             <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
-                Σύνολο Πελατών: <b>{{ sunolo }}</b>
-            </CButton>
-        <CButton  color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b><CIcon :icon="icon.cilUserPlus" size="xl" ></CIcon> Νέος Πελάτης</b> </CButton>
+            Σύνολο Πελατών: <b>{{ sunolo }}</b>
+        </CButton>
+        <CButton color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b>
+                <CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης
+            </b> </CButton>
     </div>
     <CTable striped bordered>
         <CTableHead>
@@ -35,9 +37,9 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <input type="file" id="upload" hidden />
+                    <input type="file" id="upload" hidden @change="upload">
                     <label for="upload">
-                        <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
+                        <CIcon :icon="icon.cilCloudUpload" height="32" @click="changeid(entry.cid)"></CIcon>
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
@@ -57,7 +59,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con"></CusModal>
+    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></CusModal>
 </template>
 
 <script>
@@ -75,10 +77,13 @@ export default {
             xlDemo: false,
             cus: '',
             con: [],
+            files: [],
             currentPage: 1,
             itemsPerPage: 10,
             searchQuery: '',
             sunolo: '',
+            file: null,
+            id: '',
         };
     },
     created() {
@@ -144,7 +149,49 @@ export default {
                     }
                 }
             })
+
+            axios.get('/files').then(res => { 
+            var c=0
+            this.files = []
+            for (var i=0; i<res.data.length; i++){
+                if(res.data[i].cuid == id){
+                    this.files[c] = res.data[i]
+                    c++
+                }
+            }
+        })
         },
+
+        //     handleFileChange(event) {
+        //   this.file = event.target.files[0];
+        //     },
+
+        changeid(cuid){
+            this.id = cuid
+
+        },
+
+        upload(event) {
+            this.file = event.target.files[0];
+            const formData = new FormData();
+            const blob = new Blob([this.file], { type: 'application/octet-stream;charset=utf-8' });
+            formData.append('file', blob, this.file.name);
+            formData.append('filename', this.file.name);
+            formData.append('cuid', this.id);
+            formData.append('coid', 0);
+            formData.append('zimid', 0);
+
+            axios.post('/upload', formData)
+                .then(response => {
+                    console.log(response.data, formData);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+
+
     },
     components: { CTableBody, CButton, CIcon, CusModal },
     setup() {
@@ -166,7 +213,7 @@ label {
     cursor: pointer;
 }
 
-.top{
+.top {
     display: flex;
     justify-content: space-between;
     margin-bottom: 2%;

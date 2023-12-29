@@ -59,23 +59,15 @@
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ασφαλιστική</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="asfal">
+                            <option>Επιλογή Ασφαλιστικής</option>
                             <option v-for="entry in insur" :key="entry.inid" :value="entry.inid"> {{ entry.iname }}</option>
                         </CFormSelect>
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Κλάδος</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="branch">
-                            <option>Κλάδος</option>
-                            <option value="1">ΑΥΤΟΚΙΝΗΤΟΥ</option>
-                            <option value="2">ΖΩΗΣ</option>
-                            <option value="3">ΥΓΕΙΑΣ</option>
-                            <option value="4">ΠΕΡΙΟΥΣΙΑΣ</option>
-                            <option value="5">ΑΣΤΙΚΗΣ ΕΥΘΥΝΗΣ</option>
-                            <option value="6">ΧΡΗΜΑΤΙΚΩΝ ΑΠΩΛΕΙΩΝ</option>
-                            <option value="7">ΝΟΜΙΚΗΣ ΠΡΟΣΤΑΣΙΑΣ</option>
-                            <option value="8">ΤΑΞΙΔΙΩΤΙΚΗ</option>
-                            <option value="9">ΤΕΧΝΙΚΩΝ ΑΣΦΑΛΗΣΕΩΝ</option>
-                            <option value="10">ΜΕΤΑΦΟΡΩΝ</option>
+                            <option>Επιλογή Κλάδου</option>
+                            <option v-for="entry in bran" :key="entry.bid" :value="entry.bid"> {{ entry.bname }}</option>
                         </CFormSelect>
                     </CCol>
                     <CCol md v-if="branch == 1">
@@ -89,27 +81,29 @@
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ομαδικό</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="omadiko">
-                            <option>Ομαδικό</option>
-                            <option value="1">ΝΑΙ</option>
                             <option value="2">ΟΧΙ</option>
+                            <option value="1">ΝΑΙ</option>
+
                         </CFormSelect>
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Τρόπος Πληρωμής</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="method">
-                            <option>Τρόπος Πληρωμής</option>
+                            <option value="4">'Εως Λήξη Συμβολαίου</option>
                             <option value="1">Μηνιαία</option>
                             <option value="2">3μηνη</option>
                             <option value="3">6μηνη</option>
-                            <option value="4">Ετήσια</option>
-                            <option value="5">'Εως Λήξη Συμβολαίου</option>
+
                         </CFormSelect>
                     </CCol>
                 </CRow>
-                <CFormInput type="file" id="upload" v-model="cfile" hidden  />
-                    <label for="upload" style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Ανέβασμα αρχείου Συμβολαίου </b>
-                        <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
-                    </label>
+                <CFormInput type="file" id="upload" @change="handleFileChange" hidden />
+                <label for="upload"
+                    style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Ανέβασμα
+                        αρχείου Συμβολαίου </b>
+                    <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
+                </label>
+                {{ coid }}
             </CCardBody>
             <CCardFooter style="text-align: center; padding: 20px;">
                 <CButton type="submit" size="lg" color="primary">
@@ -141,12 +135,14 @@ export default {
             asfal: '',
             branch: '',
             status: '',
-            method: '',
+            method: 4,
             pinakida: '',
-            omadiko: '',
+            omadiko: 2,
             cfile: '',
             live: false,
             insur: [],
+            bran: [],
+            coid: '',
         };
     },
     setup() {
@@ -157,6 +153,7 @@ export default {
 
     created() {
         this.getInsuranes()
+        this.getBranches()
     },
     methods: {
         Add() {
@@ -174,7 +171,8 @@ export default {
                     paymentmethod: this.method,
                     omadiko: this.omadiko,
                     pinakida: this.pinakida
-                }).catch(err => console.log(err))
+                }).then(res => { this.upload(res.data.id)})
+                    .catch(err => console.log(err))
 
                 this.connumber = ''
                 this.afmpelati = ''
@@ -188,7 +186,10 @@ export default {
                 this.status = ''
                 this.method = ''
                 this.omadiko = ''
+                this.pinakida = ''
                 this.live = true
+
+               
             }
             setTimeout(() => {
                 this.live = false;
@@ -201,8 +202,39 @@ export default {
                     this.insur = res.data
                 })
 
+        },
+
+        getBranches() {
+            axios.get('/branches')
+                .then(res => {
+                    this.bran = res.data
+                })
+        },
+
+        handleFileChange(event) {
+            this.cfile = event.target.files[0];
+        },
+
+        upload(id){
+            const formData = new FormData();
+                const blob = new Blob([this.cfile], { type: 'application/octet-stream;charset=utf-8' });
+                formData.append('file', blob, this.cfile.name);
+                formData.append('filename', this.cfile.name);
+                formData.append('cuid', 0);
+                formData.append('coid', id);
+                formData.append('zimid', 0);
+
+                axios.post('/upload', formData)
+                    .then(response => {
+                        console.log(response.data, formData);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
         }
     },
+
+
     components: { CCardBody, VueDatePicker, CIcon }
 }
 </script>

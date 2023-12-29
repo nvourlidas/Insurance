@@ -7,9 +7,11 @@
     <div class="top">
         <CButton color="primary" variant="outline" disabled>
             <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
-                Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
-            </CButton>
-        <CButton  color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b><CIcon :icon="icon.cilClipboard" size="xl" ></CIcon> Νέο Συμβόλαιο</b> </CButton>
+            Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
+        </CButton>
+        <CButton color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b>
+                <CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο
+            </b> </CButton>
     </div>
     <CTable striped bordered>
         <CTableHead>
@@ -19,14 +21,18 @@
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Εισαγωγή Αρχείου</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Ανανέωση</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
             </CTableRow>
         </CTableHead>
-        <CTableBody> 
+        <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
-                <CTableDataCell><div v-for="(e, id2) in table2" :item="e" :key="id2"><p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p></div></CTableDataCell>
+                <CTableDataCell>
+                    <div v-for="(e, id2) in table2" :item="e" :key="id2">
+                        <p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p>
+                    </div>
+                </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
@@ -35,10 +41,10 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <input type="file" id="upload" hidden />
-                    <label for="upload">
-                        <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
-                    </label>
+                    <CButton style="color: rgb(41, 177, 64);" @click="showModal2(entry.conid)">
+                        <CIcon :icon="icon.cilListHighPriority" height="32"></CIcon>
+                    </CButton>
+                    
                 </CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.conid)">
@@ -57,7 +63,8 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con"></ConModal>
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></ConModal>
+    <reloadModal :visible="modal2" @close="modal2 = false" :con="con"></reloadModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -65,7 +72,9 @@ import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import ConModal from './ConModel.vue'
+import reloadModal from './reloadModal.vue'
 import { addDays, format } from 'date-fns';
+
 
 
 export default {
@@ -73,7 +82,7 @@ export default {
         return {
             table: [],
             table2: [],
-            stable:[],
+            stable: [],
             xlDemo: false,
             cus: '',
             con: '',
@@ -83,30 +92,32 @@ export default {
             sunolo: '',
             todayDate: new Date(),
             futureDate: null,
+            files: [],
+            modal2: false,
         };
     },
     created() {
-        axios.get('/contracts-insurance').then(res => { 
+        axios.get('/contracts-insurance').then(res => {
             this.futureDate = addDays(this.todayDate, 31);
-      this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
-      this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
-      var j = 0
-            for(var i=0; i<res.data.length; i++){
+            this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
+            this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
+            var j = 0
+            for (var i = 0; i < res.data.length; i++) {
                 var dateParts = res.data[i].enddate.split('-');
-          var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+                var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
 
-          var date = new Date(formattedDate);
-          var dat =format(date, 'yyyy-MM-dd')
-                if(dat >= this.todayDate && dat <= this.futureDate){
+                var date = new Date(formattedDate);
+                var dat = format(date, 'yyyy-MM-dd')
+                if (dat >= this.todayDate && dat <= this.futureDate) {
                     this.table[j] = res.data[i]
                     j++
                 }
-                
+
             }
-            this.sunolo = this.table.length 
+            this.sunolo = this.table.length
         });
-        axios.get('/customer').then(res => {this.table2 = res.data})
-        
+        axios.get('/customer').then(res => { this.table2 = res.data })
+
     },
 
 
@@ -161,14 +172,34 @@ export default {
                     this.con = this.table[i]
                 }
             }
-            for( i=0; i<this.table2.length; i++){
-                if(this.con.custid == this.table2[i].cid){
+            for (i = 0; i < this.table2.length; i++) {
+                if (this.con.custid == this.table2[i].cid) {
                     this.cus = this.table2[i]
                 }
             }
+            axios.get('/files').then(res => {
+                var c = 0
+                this.files = []
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].coid == id) {
+                        this.files[c] = res.data[i]
+                        c++
+                    }
+                }
+            })
         },
+
+        showModal2(id) {
+            this.modal2 = true
+            for (var i = 0; i < this.table.length; i++) {
+                if (id == this.table[i].conid) {
+                    this.con = this.table[i]
+                }
+            }
+        },
+
     },
-    components: { CTableBody, CButton, CIcon, ConModal },
+    components: { CTableBody, CButton, CIcon, ConModal, reloadModal },
     setup() {
         return {
             icon,
@@ -178,17 +209,17 @@ export default {
 </script>
 
 <style scoped>
-label {
+/* label {
     display: inline-block;
     background-color: none;
-    color: black;
+    color: rgb(41, 177, 64);
     padding: 0.5rem;
     font-family: sans-serif;
     border-radius: 0.3rem;
     cursor: pointer;
-}
+} */
 
-.top{
+.top {
     display: flex;
     justify-content: space-between;
     margin-bottom: 2%;

@@ -18,7 +18,15 @@
     </CCol>
     <CCol :xs="4">
       <CWidgetStatsC class="mb-3" :value="ligoun" inverse color="danger" title="ληγουν σε 31 μερεσ"
-        @click="this.$router.push('/AddCustomer')" style="cursor: pointer;">
+        @click="this.$router.push('/Expire')" style="cursor: pointer;">
+        <template #icon>
+          <CIcon :icon="icon.cilBellExclamation" height="36" />
+        </template>
+      </CWidgetStatsC>
+    </CCol>
+    <CCol :xs="4">
+      <CWidgetStatsC class="mb-3" :value="ligoun" inverse color="danger" title="ληγουν σε 31 μερεσ"
+        @click="this.$router.push('/Expire')" style="cursor: pointer;">
         <template #icon>
           <CIcon :icon="icon.cilBellExclamation" height="36" />
         </template>

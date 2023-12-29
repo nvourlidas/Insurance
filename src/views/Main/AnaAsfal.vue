@@ -61,7 +61,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con"></ConModal>
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></ConModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -86,6 +86,7 @@ export default {
             itemsPerPage: 10,
             searchQuery: '',
             sunolo: '',
+            files: [],
         };
     },
     created() {
@@ -142,9 +143,11 @@ export default {
         getTable: function(){
             axios.get('/contracts-insurance').then(res => { 
                 var j=0
+                this.table = []
                 for(var i=0; i<res.data.length; i++){
                     if(res.data[i].inid == this.asfalid){
                         this.table[j] = res.data[i]
+                        j++
                     }
                 }
                 this.sunolo = this.table.length 
@@ -170,6 +173,16 @@ export default {
                     this.cus = this.table2[i]
                 }
             }
+            axios.get('/files').then(res => { 
+            var c=0
+            this.files = []
+            for (var i=0; i<res.data.length; i++){
+                if(res.data[i].coid == id){
+                    this.files[c] = res.data[i]
+                    c++
+                }
+            }
+        })
         },
     },
     components: { CTableBody, CButton, CIcon, ConModal },

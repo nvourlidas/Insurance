@@ -26,7 +26,7 @@
         <CTableBody> 
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
-                <CTableDataCell><div v-for="(e, id2) in table2" :item="e" :key="id2"><p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p></div></CTableDataCell>
+                <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
@@ -35,9 +35,9 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <input type="file" id="upload" hidden />
+                    <input type="file" id="upload" hidden @change="upload">
                     <label for="upload">
-                        <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
+                        <CIcon :icon="icon.cilCloudUpload" height="32" @click="changeid(entry.conid)"></CIcon>
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
@@ -57,7 +57,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con"></ConModal>
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></ConModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -80,10 +80,12 @@ export default {
             itemsPerPage: 10,
             searchQuery: '',
             sunolo: '',
+            files: [],
+            file:'',
         };
     },
     created() {
-        axios.get('/contracts-insurance').then(res => { this.table = res.data, this.sunolo = res.data.length });
+        axios.get('/contracts-customer').then(res => { this.table = res.data, this.sunolo = res.data.length });
         axios.get('/customer').then(res => {this.table2 = res.data})
         
     },
@@ -145,7 +147,40 @@ export default {
                     this.cus = this.table2[i]
                 }
             }
+            axios.get('/files').then(res => { 
+            var c=0
+            this.files = []
+            for (var i=0; i<res.data.length; i++){
+                if(res.data[i].coid == id){
+                    this.files[c] = res.data[i]
+                    c++
+                }
+            }
+        })
         },
+
+        changeid(coid){
+            this.id = coid
+        },
+
+        upload(event) {
+            this.file = event.target.files[0];
+            const formData = new FormData();
+            const blob = new Blob([this.file], { type: 'application/octet-stream;charset=utf-8' });
+            formData.append('file', blob, this.file.name);
+            formData.append('filename', this.file.name);
+            formData.append('cuid', 0);
+            formData.append('coid', this.id);
+            formData.append('zimid', 0);
+
+            axios.post('/upload', formData)
+                .then(response => {
+                    console.log(response.data, formData);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
     },
     components: { CTableBody, CButton, CIcon, ConModal },
     setup() {

@@ -39,4 +39,10 @@ export default [
         },
     ]
   },
+  {
+    component: 'CNavItem',
+    name: 'Ζημίες',
+    to: '/#',
+    icon: 'cil-dollar',
+  },
 ]

@@ -7,35 +7,114 @@
         </CModalHeader>
         <CModalBody>
             <CRow class="nav">
-                <CButton :color="bcolor1" class="navbut" @click="but1 = !but1, but2 = false, but3 = false, but4=false, color()">
+                <CButton :color="bcolor1" class="navbut"
+                    @click="but1 = !but1, but2 = false, but3 = false, but4 = false, color()">
                     Στοιχεία Πελάτη
                 </CButton>
-                <CButton :color="bcolor2" class="navbut" @click="but2 = !but2, but1 = false, but3 = false, but4=false, color()">
+                <CButton :color="bcolor2" class="navbut"
+                    @click="but2 = !but2, but1 = false, but3 = false, but4 = false, color()">
                     Συμβόλαια Πελάτη
                 </CButton>
-                <CButton :color="bcolor3" class="navbut" @click="but3 = !but3, but1 = false, but2 = false, but4=false, color()">
+                <CButton :color="bcolor3" class="navbut"
+                    @click="but3 = !but3, but1 = false, but2 = false, but4 = false, color()">
                     Αρχεία Πελάτη
                 </CButton>
-                <CButton :color="bcolor4" class="navbut" @click="but4 = !but4, but1 = false, but2 = false, but3=false, color()">
+                <CButton :color="bcolor4" class="navbut"
+                    @click="but4 = !but4, but1 = false, but2 = false, but3 = false, color()">
                     Ζημίες
                 </CButton>
             </CRow>
 
             <CCollapse :visible="but1">
                 <CCard class="mt-3">
-                    <CCardBody class="cbody">
-                        <p><b>Ονοματεπώνυμο:</b> {{ cus.name }} {{ cus.surname }}</p>
-                        <p><b>ΑΦΜ:</b> {{ cus.afm }}</p>
-                        <p><b>Email:</b> {{ cus.email }}</p>
-                        <p><b>Κινητό:</b> {{ cus.cellphone }}</p>
-                        <p><b>Σταθερό:</b> {{ cus.phone }}</p>
-                        <p v-if="cus.gender == 'A'"><b>Φύλο:</b> Άνδρας</p>
-                        <p v-if="cus.gender == 'G'"><b>Φύλο:</b> Γυναίκα</p>
-                        <p><b>Τ.Κ.:</b> {{ cus.postcode }}</p>
-                        <p><b>Ημερομηνία Γέννησης:</b> {{ cus.birthday }}</p>
-                        <p v-if="cus.property == 'A'"><b>Ιδιότητα:</b> Φυσικό Πρόσωπο</p>
-                        <p v-if="cus.property == 'N'"><b>Ιδιότητα:</b> Νομικό Πρόσωπο</p>
-                    </CCardBody>
+                    <CTable striped bordered>
+                        <CTableHead>
+                            <CTableRow style="text-align: center;">
+                                <CTableHeaderCell scope="col">Ονοματεπώνυμο</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">ΑΦΜ</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Κινητό</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Σταθερό</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Φύλο</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Τ.Κ.</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Ημερομηνία Γέννησης</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Ιδιότητα</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Επεξεργασία</CTableHeaderCell>
+                            </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                            <CTableRow style="text-align: center;">
+                                <CTableDataCell>{{ cus.name }} {{ cus.surname }}</CTableDataCell>
+                                <CTableDataCell>{{ cus.afm }}</CTableDataCell>
+                                <CTableDataCell>{{ cus.email }}</CTableDataCell>
+                                <CTableDataCell>{{ cus.cellphone }}</CTableDataCell>
+                                <CTableDataCell>{{ cus.phone }}</CTableDataCell>
+                                <CTableDataCell v-if="cus.gender == 'A'">Άνδρας</CTableDataCell>
+                                <CTableDataCell v-if="cus.gender == 'G'">Γυναίκα</CTableDataCell>
+                                <CTableDataCell>{{ cus.postcode }}</CTableDataCell>
+                                <CTableDataCell>{{ cus.birthday }}</CTableDataCell>
+                                <CTableDataCell v-if="cus.property == 'A'">Φυσικό Πρόσωπο</CTableDataCell>
+                                <CTableDataCell v-if="cus.property == 'N'">Νομικό Πρόσωπο</CTableDataCell>
+                                <CTableDataCell>
+                                    <CButton style="color: rgb(65, 45, 165);" @click="vis = !vis, table = cus">
+                                        <CIcon :icon="icon.cilPen" height="25"></CIcon>
+                                    </CButton>
+                                </CTableDataCell>
+                            </CTableRow>
+                        </CTableBody>
+                    </CTable>
+
+                    <CForm style="width: 50%; margin-top: 15px;" v-if="vis" @submit.prevent="upd">
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Όνομα</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.name" v-model="table.name"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Επίθετο</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.surname" v-model="table.surname"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">ΑΦΜ</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.afm" v-model="table.afm"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Email</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.email" v-model="table.email"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Κινητό</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.cellphone" v-model="table.cellphone"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Σταθερό</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.phone" v-model="table.phone"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Γέννησης</CFormLabel>
+                            <VueDatePicker v-model="table.birthday" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy"
+                            model-type="yyyy-MM-dd"></VueDatePicker>
+
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Τ.Κ.</CFormLabel>
+                            <CFormInput type="text" :placeholder="table.postcode" v-model="table.postcode"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ιδιότητα</CFormLabel>
+                            <CFormSelect size="sm" class="mb-3" v-model="table.property">
+                                <option value="A">Φυσικό Πρόσωπο</option>
+                                <option value="N">Νομικό Πρόσωπο</option>
+                            </CFormSelect>
+                        </div>
+                        <div class="edit">
+                            <CButton type="submit" size="sm" color="primary" style="margin-right: 10px;">
+                                <CIcon :icon="icon.cilSave" size="sm" /> Αποθήκευση
+                            </CButton>
+                            <CButton size="sm" color="danger" @click="vis = !vis">
+                                <CIcon :icon="icon.cilAccountLogout" size="sm" /> Ακύρωση
+                            </CButton>
+                        </div>
+                    </CForm>
                 </CCard>
             </CCollapse>
             <CCollapse :visible="but2">
@@ -57,7 +136,9 @@
                                 <CTableRow v-for="(entry, id) in con" :item="entry" :key="id" style="text-align: center;">
                                     <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.iname }}</CTableDataCell>
-                                    <CTableDataCell>{{ entry.bname }} <p v-if="entry.pinakida"> Αριθμός Κυκλοφορίας: {{ entry.pinakida }}</p></CTableDataCell>
+                                    <CTableDataCell>{{ entry.bname }} <p v-if="entry.pinakida"> Αριθμός Κυκλοφορίας: {{
+                                        entry.pinakida }}</p>
+                                    </CTableDataCell>
                                     <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                                     <CTableDataCell v-if="entry.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="entry.omadiko == 2">ΟΧΙ</CTableDataCell>
@@ -68,7 +149,7 @@
                                         </CButton>
                                     </CTableDataCell>
                                     <CTableDataCell>
-                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid)">
+                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid, id)">
                                             <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                                         </CButton>
                                     </CTableDataCell>
@@ -80,10 +161,12 @@
             </CCollapse>
             <CCollapse :visible="but3">
                 <CCard class="mt-3">
-                    <CCardBody>
-                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                        richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson
-                        cred nesciunt sapiente ea proident.
+                    <CCardBody class="files">
+                        <div v-for="(entry, id) in files" :item="entry" :key="id" class="download">
+                            <CButton @click="download(entry.id, entry.filename)"> <br>
+                                <CIcon :icon="icon.cilArrowThickToBottom" height="32"></CIcon> {{ entry.filename }}
+                            </CButton>
+                        </div>
                     </CCardBody>
                 </CCard>
             </CCollapse>
@@ -108,16 +191,19 @@
 </template>
 
 <script>
-import { CButton } from '@coreui/vue';
+import { CButton, CRow } from '@coreui/vue';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import OffCanvas from './OffCanvas.vue';
 import axios from 'axios';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 export default {
     props: {
         cus: Object,
         con: [],
+        files: [],
     },
     setup() {
         return {
@@ -135,7 +221,11 @@ export default {
             bcolor3: '',
             bcolor4: '',
             lept: false,
-            conbody: Object
+            conbody: Object,
+            vis: false,
+            table: Object,
+            table2: this.con,
+            
 
 
         }
@@ -157,12 +247,12 @@ export default {
                 this.bcolor1 = ''
                 this.bcolor3 = ''
                 this.bcolor4 = ''
-            } else if(this.but3) {
+            } else if (this.but3) {
                 this.bcolor3 = 'dark'
                 this.bcolor1 = ''
                 this.bcolor2 = ''
                 this.bcolor4 = ''
-            }else{
+            } else {
                 this.bcolor3 = ''
                 this.bcolor1 = ''
                 this.bcolor2 = ''
@@ -180,12 +270,53 @@ export default {
         deletecon(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete(`/contracts`, {
-                    id: id
-                }).catch(err => console.log(err, id))
+                    data: { id: id }
+                })
+                .catch(err => console.log(err, id))
             }
         },
+
+        upd() {
+            var id = this.cus.cid
+            axios.patch(`/customer/${id}`, {
+                name: this.table.name,
+                afm: this.table.afm,
+                surname: this.table.surname,
+                email: this.table.email,
+                cellphone: this.table.cellphone,
+                birthday: this.table.birthday,
+                phone: this.table.phone,
+                postcode: this.table.postcode,
+                property: this.table.property
+            }).then(this.vis = false)
+        },
+
+        download(id, name) {
+            axios.get(`/download/${id}`, { responseType: 'blob' })
+                .then(response => {
+                    const contentDisposition = response.headers['content-disposition'];
+
+                    let filename = name; // Default filename
+
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename="(.+)"/);
+                        if (match) {
+                            filename = match[1];
+                        }
+                    }
+
+                    const blob = new Blob([response.data]);
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
     },
-    components: { CButton, CIcon, OffCanvas }
+    components: { CButton, CIcon, OffCanvas, CRow, VueDatePicker }
 }
 </script>
 
@@ -204,5 +335,22 @@ export default {
     border-left: 1px solid;
     border-radius: 0;
 
+}
+
+.edit {
+    display: flex;
+    margin: 10px;
+}
+
+.files{
+    display: grid;
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 20px;
+}
+
+.download{
+    border: 1px solid;
+    border-radius: 20px;
+    text-align: center;
 }
 </style>
