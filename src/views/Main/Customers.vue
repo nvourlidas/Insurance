@@ -9,6 +9,12 @@
             <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
             Σύνολο Πελατών: <b>{{ sunolo }}</b>
         </CButton>
+        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
+            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
+        </CButton>
+        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
+            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
+        </CButton>
         <CButton color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης
             </b> </CButton>
@@ -48,6 +54,9 @@
                     </CButton>
                 </CTableDataCell>
             </CTableRow>
+            <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
+                <CTableDataCell colspan="7">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+            </CTableRow>
         </CTableBody>
     </CTable>
     <CPagination size="lg" align="center" aria-label="Page navigation example">
@@ -68,6 +77,9 @@ import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import CusModal from './CusModel.vue'
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 
 export default {
@@ -150,23 +162,23 @@ export default {
                 }
             })
 
-            axios.get('/files').then(res => { 
-            var c=0
-            this.files = []
-            for (var i=0; i<res.data.length; i++){
-                if(res.data[i].cuid == id){
-                    this.files[c] = res.data[i]
-                    c++
+            axios.get('/files').then(res => {
+                var c = 0
+                this.files = []
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].cuid == id) {
+                        this.files[c] = res.data[i]
+                        c++
+                    }
                 }
-            }
-        })
+            })
         },
 
         //     handleFileChange(event) {
         //   this.file = event.target.files[0];
         //     },
 
-        changeid(cuid){
+        changeid(cuid) {
             this.id = cuid
 
         },
@@ -188,11 +200,29 @@ export default {
                 .catch(error => {
                     console.error(error);
                 });
-        }
+        },
 
+        downloadExcel() {
+            const ws = XLSX.utils.json_to_sheet(this.table);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, 'Πελάτες.xlsx');
+        },
 
+        downloadPDF() {
+            const pdf = new jsPDF();
+            pdf.internal.characterSet = 'utf8mb4_unicode_ci';
+            const columns = ['Όνομα', 'Επίθετο', 'Email', 'Κινητό', 'Σταθερό', 'Τ.Κ.', 'Ημερομηνία Γέννησης', 'ΑΦΜ'];
+            const data = this.table.map(obj => [obj.name, obj.surname, obj.email, obj.cellphone, obj.phone, obj.postcode, obj.birthday, obj.afm]);
 
+            pdf.autoTable({
+                head: [columns],
+                body: data,
+            });
+            pdf.save('Πελάτες.pdf');
+        },
     },
+
     components: { CTableBody, CButton, CIcon, CusModal },
     setup() {
         return {

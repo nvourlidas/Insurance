@@ -44,13 +44,16 @@
                     <CButton style="color: rgb(41, 177, 64);" @click="showModal2(entry.conid)">
                         <CIcon :icon="icon.cilListHighPriority" height="32"></CIcon>
                     </CButton>
-                    
+
                 </CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.conid)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
+            </CTableRow>
+            <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
+                <CTableDataCell colspan="7">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
             </CTableRow>
         </CTableBody>
     </CTable>

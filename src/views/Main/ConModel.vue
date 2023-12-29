@@ -59,6 +59,9 @@
                                     <CTableDataCell v-if="con.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 2">ΟΧΙ</CTableDataCell>
                                 </CTableRow>
+                                <CTableRow v-if="con.length === 0" style="text-align: center;">
+                                    <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                                </CTableRow>
                             </CTableBody>
                         </CTable>
 
@@ -198,16 +201,15 @@ export default {
 
 }
 
-.files{
+.files {
     display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
-.download{
+.download {
     border: 1px solid;
     border-radius: 20px;
     text-align: center;
 }
-
 </style>

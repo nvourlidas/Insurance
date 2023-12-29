@@ -46,6 +46,9 @@
                     </CButton>
                 </CTableDataCell>
             </CTableRow>
+            <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
+                <CTableDataCell colspan="7">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+            </CTableRow>
         </CTableBody>
     </CTable>
     <CPagination size="lg" align="center" aria-label="Page navigation example">

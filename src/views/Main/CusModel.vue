@@ -61,6 +61,9 @@
                                     </CButton>
                                 </CTableDataCell>
                             </CTableRow>
+                            <CTableRow v-if="cus.length === 0" style="text-align: center;">
+                                    <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                                </CTableRow>
                         </CTableBody>
                     </CTable>
 

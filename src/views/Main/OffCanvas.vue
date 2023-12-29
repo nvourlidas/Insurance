@@ -35,14 +35,6 @@
                 </CTableRow>
             </CTableBody>
         </CTable>
-        <h3>Καλύψεις</h3>
-        <CListGroup>
-            <CListGroupItem>ΠΡΟΣΚΡΟΥΣΗ ΟΧΗΜΑΤΟΣ</CListGroupItem>
-            <CListGroupItem>ΚΛΟΠΗ</CListGroupItem>
-            <CListGroupItem>ΥΛΙΚΕΣ ΖΗΜΙΕΣ</CListGroupItem>
-            <CListGroupItem>ΕΠΙΔΟΜΑΤΑ ΥΓΕΙΑΣ</CListGroupItem>
-            <CListGroupItem>ΝΟΣΗΛΕΙΑ ΜΟΝΟ ΑΠΟ ΑΤΥΧΗΜΑ</CListGroupItem>
-        </CListGroup>
     </COffcanvasBody>
 </template>
 

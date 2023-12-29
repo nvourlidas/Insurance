@@ -50,6 +50,9 @@
                     </CButton>
                 </CTableDataCell>
             </CTableRow>
+            <CTableRow v-if="table.length === 0" style="text-align: center;">
+                <CTableDataCell colspan="7">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+            </CTableRow>
         </CTableBody>
     </CTable>
     <CPagination size="lg" align="center" aria-label="Page navigation example">
@@ -85,7 +88,7 @@ export default {
             currentPage: 1,
             itemsPerPage: 10,
             searchQuery: '',
-            sunolo: '',
+            sunolo: 0,
             files: [],
         };
     },
