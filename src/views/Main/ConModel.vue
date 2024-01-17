@@ -1,5 +1,5 @@
 <template>
-    <CModal size="xl">
+    <CModal fullscreen size="xl">
         <CModalHeader>
             <CModalTitle>
                 <h2>{{ con.conumber }}</h2>
@@ -29,8 +29,10 @@
                             <CTableHead>
                                 <CTableRow style="text-align: center;">
                                     <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Κλάδος Ασφάλησης</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ημερομηνία 'Εναρξης</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Καθαρά</CTableHeaderCell>
@@ -38,15 +40,17 @@
                                     <CTableHeaderCell scope="col">Προμήθεια</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Μέθοδος Πληρωμής</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ομαδικό</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col" v-if="mod == 1">Επεξεργασία</CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
                                 <CTableRow style="text-align: center;">
                                     <CTableDataCell>{{ con.conumber }}</CTableDataCell>
+                                    <CTableDataCell>{{ cus.name }} {{ cus.surname }}</CTableDataCell>
                                     <CTableDataCell>{{ con.iname }}</CTableDataCell>
-                                    <CTableDataCell>{{ con.bname }} <p v-if="con.pinakida"> Αριθμός Κυκλοφορίας: {{
-                                        con.pinakida }}</p>
+                                    <CTableDataCell>{{ con.bname }}
                                     </CTableDataCell>
+                                    <CTableDataCell>{{ con.pinakida }}</CTableDataCell>
                                     <CTableDataCell>{{ con.startdate }}</CTableDataCell>
                                     <CTableDataCell>{{ con.enddate }}</CTableDataCell>
                                     <CTableDataCell>{{ con.clear }}</CTableDataCell>
@@ -58,13 +62,110 @@
                                     <CTableDataCell v-if="con.paymentmethod == 4">'Εως Λήξη Συμβολαίου</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 2">ΟΧΙ</CTableDataCell>
+                                    <CTableDataCell v-if="mod == 1">
+                                        <CButton style="color: rgb(65, 45, 165);" @click="vis = !vis, table = con">
+                                            <CIcon :icon="icon.cilPen" height="25"></CIcon>
+                                        </CButton>
+                                    </CTableDataCell>
                                 </CTableRow>
                                 <CTableRow v-if="con.length === 0" style="text-align: center;">
-                                    <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                                    <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα
+                                    </CTableDataCell>
                                 </CTableRow>
                             </CTableBody>
                         </CTable>
-
+                        <CForm style="width: 80%; margin-top: 15px;" v-if="vis" @submit.prevent="upd">
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Αριθμός Συμβολαίου</CFormLabel>
+                                <CFormInput type="text" :placeholder="table.conumber" v-model="table.conumber"></CFormInput>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">ΑΦΜ Πελάτη</CFormLabel>
+                                <CFormInput type="text" floatingLabel="ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη"
+                                    v-model="searchQuery" />
+                                <CFormSelect size="sm" class="mb-3" multiple v-model="table.custid" :html-size="2">
+                                    <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{
+                                        entry.afm }}
+                                    </option>
+                                </CFormSelect>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ασφαλιστική</CFormLabel>
+                                <CFormSelect size="sm" class="mb-3" v-model="table.insuranceid">
+                                    <option>Επιλογή Ασφαλιστικής</option>
+                                    <option v-for="entry in insur" :key="entry.inid" :value="entry.inid"> {{ entry.iname }}
+                                    </option>
+                                </CFormSelect>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Κλάδος</CFormLabel>
+                                <CFormSelect size="sm" class="mb-3" v-model="table.branchid">
+                                    <option>Επιλογή Κλάδου</option>
+                                    <option v-for="entry in branch" :key="entry.bid" :value="entry.bid"> {{ entry.bname }}
+                                    </option>
+                                </CFormSelect>
+                            </div>
+                            <div class="edit" v-if="table.branchid == 1">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Χαρακτηριστικό</CFormLabel>
+                                <CFormInput type="text" :placeholder="table.pinakida" v-model="table.pinakida">
+                                </CFormInput>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Εναρξης</CFormLabel>
+                                <VueDatePicker v-model="table.startdate" :placeholder="table.startdate" format="dd-MM-yyyy"
+                                    model-type="yyyy-MM-dd"></VueDatePicker>
+                            </div>{{ table.startdate }}
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Λήξης</CFormLabel>
+                                <VueDatePicker v-model="table.enddate" :placeholder="table.enddate" format="dd-MM-yyyy"
+                                    model-type="yyyy-MM-dd"></VueDatePicker>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Καθαρά</CFormLabel>
+                                <CInputGroup class="mb-3">
+                                    <CInputGroupText>€</CInputGroupText>
+                                    <CFormInput type="text" :placeholder="table.clear" v-model="table.clear" />
+                                </CInputGroup>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Μεικτά</CFormLabel>
+                                <CInputGroup class="mb-3">
+                                    <CInputGroupText>€</CInputGroupText>
+                                    <CFormInput type="text" :placeholder="table.mikta" v-model="table.mikta" />
+                                </CInputGroup>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Προμήθεια</CFormLabel>
+                                <CInputGroup class="mb-3">
+                                    <CInputGroupText>€</CInputGroupText>
+                                    <CFormInput type="text" :placeholder="table.promithia" v-model="table.promithia" />
+                                </CInputGroup>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Μέθοδος Πληρωμής</CFormLabel>
+                                <CFormSelect size="sm" class="mb-3" v-model="table.paymentmethod">
+                                    <option value="4">'Εως Λήξη Συμβολαίου</option>
+                                    <option value="1">Μηνιαία</option>
+                                    <option value="2">3μηνη</option>
+                                    <option value="3">6μηνη</option>
+                                </CFormSelect>
+                            </div>
+                            <div class="edit">
+                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ομαδικό</CFormLabel>
+                                <CFormSelect size="sm" class="mb-3" v-model="table.omadiko">
+                                    <option value="2">ΟΧΙ</option>
+                                    <option value="1">ΝΑΙ</option>
+                                </CFormSelect>
+                            </div>
+                            <div class="edit">
+                                <CButton type="submit" size="sm" color="primary" style="margin-right: 10px;">
+                                    <CIcon :icon="icon.cilSave" size="sm" /> Αποθήκευση
+                                </CButton>
+                                <CButton size="sm" color="danger" @click="vis = !vis">
+                                    <CIcon :icon="icon.cilAccountLogout" size="sm" /> Ακύρωση
+                                </CButton>
+                            </div>
+                        </CForm>
                     </CCardBody>
                 </CCard>
             </CCollapse>
@@ -83,20 +184,47 @@
             <CCollapse :visible="but4">
                 <CCard class="mt-3">
                     <CCardBody>
-                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                        richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson
-                        cred nesciunt sapiente ea proident.
+                        <CTable striped bordered>
+                            <CTableHead>
+                                <CTableRow style="text-align: center;">
+                                    <CTableHeaderCell scope="col">Αριθμός Ζημίας</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ποσό</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ημερομηνία Καταχώρησης</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Κατάσταση</CTableHeaderCell>
+
+                                    <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
+                                </CTableRow>
+                            </CTableHead>
+                            <CTableBody>
+                                <CTableRow v-for="(entry, id) in zimies" :item="entry" :key="id"
+                                    style="text-align: center;">
+                                    <CTableDataCell>{{ entry.znumber }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.poso }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.inputdate }}</CTableDataCell>
+                                    <CTableDataCell v-if="entry.status == 1">Σε Εκρεμότητα</CTableDataCell>
+                                    <CTableDataCell v-if="entry.status == 2">Εγκρίθηκε</CTableDataCell>
+                                    
+                                    <CTableDataCell>
+                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
+                                            <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
+                                        </CButton>
+                                    </CTableDataCell>
+                                </CTableRow>
+                                <CTableRow v-if="zimies.length === 0" style="text-align: center;">
+                                    <CTableDataCell colspan="9">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                                </CTableRow>
+                            </CTableBody>
+                        </CTable>
                     </CCardBody>
                 </CCard>
             </CCollapse>
         </CModalBody>
-        <COffcanvas placement="bottom" :visible="lept" @hide="() => { lept = !lept }">
-            <COffcanvasHeader>
-                <COffcanvasTitle>Λεπτομέριες Συμβολαίου</COffcanvasTitle>
-                <CCloseButton class="text-reset" @click="() => { lept = false }" />
-            </COffcanvasHeader>
-            <OffCanvas :body="conbody"></OffCanvas>
-        </COffcanvas>
     </CModal>
 </template>
 
@@ -104,14 +232,22 @@
 import { CButton } from '@coreui/vue';
 //import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
-import OffCanvas from './OffCanvas.vue';
 import axios from 'axios';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+//import { format } from 'date-fns';
+import moment from 'moment';
 
 export default {
     props: {
         cus: Object,
         con: Object,
         files: [],
+        table2: [],
+        insur: [],
+        branch: [],
+        mod: Number,
+        zimies: [],
     },
     setup() {
         return {
@@ -126,17 +262,30 @@ export default {
             bcolor1: '',
             bcolor3: '',
             bcolor4: '',
-            lept: false,
-            conbody: Object
-
-
+            vis: false,
+            conbody: Object,
+            table: Object,
+            searchQuery: '',
         }
     },
 
     mounted() {
         this.color()
+
     },
 
+    computed: {
+        filteredItems() {
+
+            return this.table2.filter(item =>
+                Object.values(item)
+                    .join(' ')
+                    .toLowerCase()
+                    .includes(this.searchQuery.toLowerCase())
+            );
+
+        },
+    },
     methods: {
         color() {
             if (this.but1) {
@@ -155,12 +304,39 @@ export default {
             }
         },
 
+        upd() {
+            var id = this.con.conid
+            const dateString = this.table.startdate;
+            const formattedDate = moment(dateString, "DD-MM-YYYY").format("YYYY-MM-DD");
+
+            const dateString2 = this.table.enddate;
+            const formattedDate2 = moment(dateString2, "DD-MM-YYYY").format("YYYY-MM-DD");
+
+            this.table.startdate = formattedDate;
+            this.table.enddate = formattedDate2;
+            axios.patch(`/contracts/${id}`, {
+                conumber: this.table.conumber,
+                custid: this.table.custid,
+                insuranceid: this.table.insuranceid,
+                branchid: this.table.branchid,
+                startdate: this.table.startdate,
+                enddate: this.table.enddate,
+                clear: this.table.clear,
+                mikta: this.table.mikta,
+                promithia: this.table.promithia,
+                paymentmethod: this.table.paymentmethod,
+                omadiko: this.table.omadiko,
+                pinakida: this.table.pinakida,
+            }).then(this.vis = false)
+        },
+
+
         download(id, name) {
             axios.get(`/download/${id}`, { responseType: 'blob' })
                 .then(response => {
                     const contentDisposition = response.headers['content-disposition'];
 
-                    let filename = name; // Default filename
+                    let filename = name;
 
                     if (contentDisposition) {
                         const match = contentDisposition.match(/filename="(.+)"/);
@@ -180,7 +356,7 @@ export default {
                 });
         }
     },
-    components: { CButton, OffCanvas }
+    components: { CButton, VueDatePicker }
 }
 </script>
 
@@ -199,6 +375,11 @@ export default {
     border-left: 1px solid;
     border-radius: 0;
 
+}
+
+.edit {
+    display: flex;
+    margin: 10px;
 }
 
 .files {

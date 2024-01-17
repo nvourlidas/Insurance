@@ -64,7 +64,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></ConModal>
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies"></ConModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -90,6 +90,7 @@ export default {
             searchQuery: '',
             sunolo: 0,
             files: [],
+            zimies: [],
         };
     },
     created() {
@@ -186,6 +187,17 @@ export default {
                 }
             }
         })
+
+        axios.get('/zimies').then(res => {
+                var t =0
+                this.zimies = []
+                for(var i=0; i<res.data.length; i++){
+                    if(res.data[i].contractid == id){
+                        this.zimies[t] = res.data[i]
+                        t++
+                    }
+                }
+            })
         },
     },
     components: { CTableBody, CButton, CIcon, ConModal },

@@ -45,9 +45,24 @@ const routes = [
         component: () => import('@/views/Main/Expire'),
       },
       {
+        path: '/ToPay',
+        name: 'ToPay',
+        component: () => import('@/views/Main/ToPay'),
+      },
+      {
         path: '/AnaAsfal',
         name: 'AnaAsfal',
         component: () => import('@/views/Main/AnaAsfal'),
+      },
+      {
+        path: '/AddZimia',
+        name: 'AddZimia',
+        component: () => import('@/views/Main/AddZimia'),
+      },
+      {
+        path: '/Zimies',
+        name: 'Zimies',
+        component: () => import('@/views/Main/Zimies'),
       },
     ],
   },

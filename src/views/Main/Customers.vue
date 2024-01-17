@@ -68,7 +68,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></CusModal>
+    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies"></CusModal>
 </template>
 
 <script>
@@ -96,6 +96,7 @@ export default {
             sunolo: '',
             file: null,
             id: '',
+            zimies: [],
         };
     },
     created() {
@@ -141,7 +142,7 @@ export default {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete('/customer', {
                     data: { id: id }
-                }).catch(err => console.log(err, id))
+                }).then(this.table.splice(1,id)).catch(err => console.log(err, id))
             }
         },
         showModal(id) {
@@ -169,6 +170,17 @@ export default {
                     if (res.data[i].cuid == id) {
                         this.files[c] = res.data[i]
                         c++
+                    }
+                }
+            })
+
+            axios.get('/zimies').then(res => {
+                var t =0
+                this.zimies = []
+                for(var i=0; i<res.data.length; i++){
+                    if(res.data[i].customerid == id){
+                        this.zimies[t] = res.data[i]
+                        t++
                     }
                 }
             })
@@ -203,15 +215,43 @@ export default {
         },
 
         downloadExcel() {
-            const ws = XLSX.utils.json_to_sheet(this.table);
+            const data = this.table;
+
+            
+            const columnsToExport = [
+                { header: 'Όνομα', key: 'name' },
+                { header: 'Επίθετο', key: 'surname' },
+                { header: 'ΑΦΜ', key: 'afm' },
+                { header: 'Email', key: 'email' },
+                { header: 'Kινητό', key: 'cellphone' },
+                { header: 'Σταθερό', key: 'phone' },
+                { header: 'T.K.', key: 'postcode' },
+                { header: 'Ημερομηνία Γέννησης', key: 'birthday' },
+            ];
+
+            // Extract only the selected columns from the data
+            const filteredData = data.map(item => {
+                const filteredItem = {};
+                columnsToExport.forEach(column => {
+                    filteredItem[column.header] = item[column.key];
+                });
+                return filteredItem;
+            });
+
+            // Create a worksheet with custom columns and headers
+            const ws = XLSX.utils.json_to_sheet(filteredData, { header: columnsToExport.map(column => column.header) });
+
+            // Create a new workbook and append the worksheet
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+            // Save the workbook as an Excel file
             XLSX.writeFile(wb, 'Πελάτες.xlsx');
         },
 
         downloadPDF() {
             const pdf = new jsPDF();
-            pdf.internal.characterSet = 'utf8mb4_unicode_ci';
+            pdf.setFont('times', 'normal');
             const columns = ['Όνομα', 'Επίθετο', 'Email', 'Κινητό', 'Σταθερό', 'Τ.Κ.', 'Ημερομηνία Γέννησης', 'ΑΦΜ'];
             const data = this.table.map(obj => [obj.name, obj.surname, obj.email, obj.cellphone, obj.phone, obj.postcode, obj.birthday, obj.afm]);
 

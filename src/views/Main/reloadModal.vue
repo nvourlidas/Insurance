@@ -26,7 +26,7 @@
 </template>
 
 <script>
-// import axios from 'axios';
+ import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 export default {
@@ -42,7 +42,13 @@ export default {
 
     methods: {
         reload(){
-
+            var id = this.con.conid
+            if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Ανανέωση;")){
+                axios.patch(`/contracts/${id}`, {
+                    startdate: this.startdate,
+                    enddate: this.enddate
+                }).then(this.$emit('close-modal', id))
+            }
         }
     },
     components: {VueDatePicker },

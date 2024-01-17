@@ -10,12 +10,12 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Όνομα</CFormLabel>
-                            <CFormInput type="text" floatingLabel="Όνομα" placeholder="Όνομα" v-model="name" />
+                            <CFormInput type="text" floatingLabel="Όνομα" placeholder="Όνομα" v-model="name" required/>
                         
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Επίθετο</CFormLabel> 
-                            <CFormInput type="text" floatingLabel="Επίθετο" placeholder="Όνομα" v-model="surname" />
+                            <CFormInput type="text" floatingLabel="Επίθετο" placeholder="Όνομα" v-model="surname" required/>
                         
                     </CCol>
                 </CRow>
@@ -34,7 +34,7 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">ΑΦΜ</CFormLabel>
-                            <CFormInput type="text" floatingLabel="ΑΦΜ" placeholder="ΑΦΜ" v-model="afm" />
+                            <CFormInput type="text" floatingLabel="ΑΦΜ" placeholder="ΑΦΜ" v-model="afm" required/>
                         
                     </CCol>
                     <CCol md>
@@ -57,8 +57,7 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Φύλλο</CFormLabel>
-                        <CFormSelect size="lg" class="mb-3" v-model="gender">
-                            <option>Φύλο</option>
+                        <CFormSelect size="lg" class="mb-3" v-model="gender">                          
                             <option value="A">Άνδρας</option>
                             <option value="G">Γυναίκα</option>
                         </CFormSelect>
@@ -66,7 +65,6 @@
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ιδιότητα</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="status">
-                            <option>Ιδιότητα</option>
                             <option value="A">Φυσικό Πρόσωπο</option>
                             <option value="N">Νομικό Πρόσωπο</option>
                         </CFormSelect>
@@ -101,8 +99,8 @@ export default {
             phone: '',
             tk: '',
             birthdate: '',
-            gender: '',
-            status: '',
+            gender: 'A',
+            status: 'A',
             live: false,
         };
     },

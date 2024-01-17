@@ -9,12 +9,6 @@
             <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
             Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
         </CButton>
-        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
-            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
-        </CButton>
-        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
-            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
-        </CButton>
         <CButton color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο
             </b> </CButton>
@@ -25,10 +19,10 @@
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Ημερομηνία Επόμενης Πληρωμής</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Ανανέωση</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Πληρωμή</CTableHeaderCell>
+                
             </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -40,29 +34,26 @@
                     </div>
                 </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
-                <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
+                <CTableDataCell>{{ entry.paydate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
                         <CIcon :icon="icon.cilDescription" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(41, 177, 64);" @click="showModal2(entry.conid)">
-                        <CIcon :icon="icon.cilListHighPriority" height="32"></CIcon>
+                    <CButton style="color: rgb(41, 177, 64);" @click="pay(entry.conid, id)">
+                        <CIcon :icon="icon.cilCash" height="32"></CIcon>
                     </CButton>
 
                 </CTableDataCell>
-                <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.conid)">
-                        <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
-                    </CButton>
-                </CTableDataCell>
+               
             </CTableRow>
             <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
                 <CTableDataCell colspan="7">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
             </CTableRow>
         </CTableBody>
     </CTable>
+    {{ checked }}
     <CPagination size="lg" align="center" aria-label="Page navigation example">
         <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo; Προηγούμενη
         </CPaginationItem>
@@ -73,7 +64,6 @@
         </CPaginationItem>
     </CPagination>
     <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies"></ConModal>
-    <reloadModal :visible="modal2" @close-modal="closeModalHandler"  :con="con"></reloadModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -81,11 +71,8 @@ import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import ConModal from './ConModel.vue'
-import reloadModal from './reloadModal.vue'
 import { addDays, format } from 'date-fns';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+
 
 
 
@@ -105,7 +92,6 @@ export default {
             todayDate: new Date(),
             futureDate: null,
             files: [],
-            modal2: false,
             zimies: [],
         };
     },
@@ -114,16 +100,25 @@ export default {
             this.futureDate = addDays(this.todayDate, 31);
             this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
             this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
+
             var j = 0
             for (var i = 0; i < res.data.length; i++) {
-                var dateParts = res.data[i].enddate.split('-');
+                var dateParts = res.data[i].paydate.split('-');
                 var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
-
                 var date = new Date(formattedDate);
                 var dat = format(date, 'yyyy-MM-dd')
-                if (dat >= this.todayDate && dat <= this.futureDate) {
+
+                var dateParts2 = res.data[i].enddate.split('-');
+                var formattedDate2 = dateParts2[2] + '-' + dateParts2[1] + '-' + dateParts2[0];
+                var date2 = new Date(formattedDate2);
+                var dat2 = format(date2, 'yyyy-MM-dd')
+                if (dat >= this.todayDate && dat <= this.futureDate && res.data[i].ispaid === 0 && res.data[i].paymentmethod !=4) {
+                    if(dat2 >= this.todayDate && dat2 <= this.futureDate){
+                        console.log(dat2)
+                    }else{
                     this.table[j] = res.data[i]
                     j++
+                    }
                 }
 
             }
@@ -213,77 +208,80 @@ export default {
             })
         },
 
-        showModal2(id) {
-            this.modal2 = true
-            for (var i = 0; i < this.table.length; i++) {
-                if (id == this.table[i].conid) {
-                    this.con = this.table[i]
+        pay(id, t) {
+            const con = this.table.find(obj => obj.conid === id)
+            const parts = this.todayDate.split("-");
+                var month = parseInt(parts[1].padStart(2, '0'), 10)
+                var year = parseInt(parts[0].padStart(2, '0'),10)
+                var paydate = ''
+                var ldm =''
+            if (con.paymentmethod == 1) {
+                if(month == 12){
+                    year += 1
+                    month = 0
+                }
+                const firstDayOfNextMonth = new Date(year, month +1, 1);
+                const lastDayOfMonth = new Date(firstDayOfNextMonth - 1);
+                ldm =lastDayOfMonth.getDate()
+
+                month += 1
+                if(month<10){
+                    paydate = year + '-0' + month  + '-' + ldm
+                }else{
+                    paydate = year + '-' + month  + '-' + ldm
+                }
+                
+            }else if(con.paymentmethod == 2){
+                if(month +3 > 12){
+                    year += 1
+                    month = month + 3 -12
+                }else{
+                    month += 3
+                }
+                const firstDayOfNextMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(firstDayOfNextMonth - 1);
+                ldm =lastDayOfMonth.getDate()
+
+                
+                if(month<10){
+                    paydate = year + '-0' + month  + '-' + ldm
+                }else{
+                    paydate = year + '-' + month  + '-' + ldm
+                }
+            }else if(con.paymentmethod == 3){
+                if(month + 6 > 12){
+                    year += 1
+                    month = month + 6 -12
+                }else{
+                    month += 6
+                }
+                const firstDayOfNextMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(firstDayOfNextMonth - 1);
+                ldm =lastDayOfMonth.getDate()
+
+                
+                if(month<10){
+                    paydate = year + '-0' + month  + '-' + ldm
+                }else{
+                    paydate = year + '-' + month  + '-' + ldm
                 }
             }
-        },
-
-        closeModalHandler(id){
-            this.modal2 = false;
-            this.table.splice(1,id)
-        },
-
-        downloadExcel() {
-            const data = this.table;
-
             
-            const columnsToExport = [
-                { header: 'Αριθμός Συμβολαίου', key: 'conumber' },
-                { header: 'Όνομα Πελάτη', key: 'name' },
-                { header: 'Επίθετο Πελάτη', key: 'surname' },
-                { header: 'Ασφαλιστική', key: 'iname' },
-                { header: 'Κλάδος', key: 'bname' },
-                { header: 'Χαρακτηριστικό', key: 'pinakida' },
-                { header: 'Ημερομηνία Εναρξης', key: 'startdate' },
-                { header: 'Ημερομηνία Λήξης', key: 'enddate' },
-                { header: 'Καθαρά', key: 'clear' },
-                { header: 'Μεικτά', key: 'mikta' },
-                { header: 'Προμήθεια', key: 'promithia' },
-            ];
+            if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Ανανέωση;")){
+                axios.patch(`/contracts/${id}`, {
+                    paydate: paydate,
+                }).then(this.table[t].paydate = paydate)
+            }
+        }
 
-            // Extract only the selected columns from the data
-            const filteredData = data.map(item => {
-                const filteredItem = {};
-                columnsToExport.forEach(column => {
-                    filteredItem[column.header] = item[column.key];
-                });
-                return filteredItem;
-            });
-
-            // Create a worksheet with custom columns and headers
-            const ws = XLSX.utils.json_to_sheet(filteredData, { header: columnsToExport.map(column => column.header) });
-
-            // Create a new workbook and append the worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-            // Save the workbook as an Excel file
-            XLSX.writeFile(wb, 'Συμβόλαια-Λήξη.xlsx');
-
-        },
-
-        downloadPDF() {
-            const pdf = new jsPDF();
-            pdf.setFont('times', 'normal');
-            const columns = ['Αριθμός Συμβολαίου', 'Όνομα Πελάτη', 'Επίθετο Πελάτη', 'Ασφαλιστική', 'Κλάδος', 'Χαρακτηριστικό', 'Ημερομηνία Εναρξης', 'Ημερομηνία Λήξης', 'Καθαρά', 'Μεικτά', 'Προμήθεια'];
-            const data = this.table.map(obj => [obj.conumber, obj.name, obj.surname, obj.iname, obj.bname, obj.pinakida, obj.startdate, obj.enddate, obj.clear, obj.mikta, obj.promithia]);
-
-            pdf.autoTable({
-                head: [columns],
-                body: data,
-            });
-            pdf.save('Συμβόλαια-Λήξη.pdf');
-        },
 
     },
-    components: { CTableBody, CButton, CIcon, ConModal, reloadModal },
+    components: { CTableBody, CButton, CIcon, ConModal },
     setup() {
+        
         return {
             icon,
+            
         }
     },
 }

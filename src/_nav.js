@@ -30,7 +30,7 @@ export default [
         {
           component: 'CNavItem',
           name: 'Προς Πληρωμή',
-          to: '/Expire',
+          to: '/ToPay',
         },
         {
           component: 'CNavItem',
@@ -44,5 +44,17 @@ export default [
     name: 'Ζημίες',
     to: '/#',
     icon: 'cil-dollar',
+    items: [
+      {
+        component: 'CNavItem',
+        name: 'Εισαγωγή Ζημίας',
+        to: '/AddZimia',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Όλες οι Ζημίες',
+        to: '/Zimies',
+      },
+    ]
   },
 ]

@@ -24,7 +24,6 @@
                     Ζημίες
                 </CButton>
             </CRow>
-
             <CCollapse :visible="but1">
                 <CCard class="mt-3">
                     <CTable striped bordered>
@@ -62,8 +61,8 @@
                                 </CTableDataCell>
                             </CTableRow>
                             <CTableRow v-if="cus.length === 0" style="text-align: center;">
-                                    <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
-                                </CTableRow>
+                                <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                            </CTableRow>
                         </CTableBody>
                     </CTable>
 
@@ -94,8 +93,8 @@
                         </div>
                         <div class="edit">
                             <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Γέννησης</CFormLabel>
-                            <VueDatePicker v-model="table.birthday" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy"
-                            model-type="yyyy-MM-dd"></VueDatePicker>
+                            <VueDatePicker v-model="table.birthday" :placeholder="table.birthday" format="dd-MM-yyyy"
+                                model-type="yyyy-MM-dd"></VueDatePicker>
 
                         </div>
                         <div class="edit">
@@ -129,6 +128,7 @@
                                     <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Κλάδος Ασφάλησης</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Λήξη Συμβολαίου</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ομαδικό</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
@@ -139,9 +139,9 @@
                                 <CTableRow v-for="(entry, id) in con" :item="entry" :key="id" style="text-align: center;">
                                     <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.iname }}</CTableDataCell>
-                                    <CTableDataCell>{{ entry.bname }} <p v-if="entry.pinakida"> Αριθμός Κυκλοφορίας: {{
-                                        entry.pinakida }}</p>
+                                    <CTableDataCell>{{ entry.bname }}
                                     </CTableDataCell>
+                                    <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                                     <CTableDataCell v-if="entry.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="entry.omadiko == 2">ΟΧΙ</CTableDataCell>
@@ -176,9 +176,43 @@
             <CCollapse :visible="but4">
                 <CCard class="mt-3">
                     <CCardBody>
-                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                        richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson
-                        cred nesciunt sapiente ea proident.
+                        <CTable striped bordered>
+                            <CTableHead>
+                                <CTableRow style="text-align: center;">
+                                    <CTableHeaderCell scope="col">Αριθμός Ζημίας</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ποσό</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ημερομηνία Καταχώρησης</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Κατάσταση</CTableHeaderCell>
+
+                                    <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
+                                </CTableRow>
+                            </CTableHead>
+                            <CTableBody>
+                                <CTableRow v-for="(entry, id) in zimies" :item="entry" :key="id"
+                                    style="text-align: center;">
+                                    <CTableDataCell>{{ entry.znumber }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.poso }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.inputdate }}</CTableDataCell>
+                                    <CTableDataCell v-if="entry.status == 1">Σε Εκρεμότητα</CTableDataCell>
+                                    <CTableDataCell v-if="entry.status == 2">Εγκρίθηκε</CTableDataCell>
+                                    
+                                    <CTableDataCell>
+                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
+                                            <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
+                                        </CButton>
+                                    </CTableDataCell>
+                                </CTableRow>
+                                <CTableRow v-if="zimies.length === 0" style="text-align: center;">
+                                    <CTableDataCell colspan="9">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                                </CTableRow>
+                            </CTableBody>
+                        </CTable>
                     </CCardBody>
                 </CCard>
             </CCollapse>
@@ -201,12 +235,15 @@ import OffCanvas from './OffCanvas.vue';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+//import { format } from 'date-fns';
+import moment from 'moment';
 
 export default {
     props: {
         cus: Object,
         con: [],
         files: [],
+        zimies: [],
     },
     setup() {
         return {
@@ -228,7 +265,7 @@ export default {
             vis: false,
             table: Object,
             table2: this.con,
-            
+
 
 
         }
@@ -275,12 +312,18 @@ export default {
                 axios.delete(`/contracts`, {
                     data: { id: id }
                 })
-                .catch(err => console.log(err, id))
+                    .catch(err => console.log(err, id))
             }
         },
 
         upd() {
             var id = this.cus.cid
+            const dateString = this.table.birthday;
+            const formattedDate = moment(dateString, "DD-MM-YYYY").format("YYYY-MM-DD");
+
+            this.table.birthday = formattedDate;
+
+
             axios.patch(`/customer/${id}`, {
                 name: this.table.name,
                 afm: this.table.afm,
@@ -345,13 +388,13 @@ export default {
     margin: 10px;
 }
 
-.files{
+.files {
     display: grid;
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
-.download{
+.download {
     border: 1px solid;
     border-radius: 20px;
     text-align: center;
