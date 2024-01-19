@@ -56,7 +56,7 @@
       </CWidgetStatsF>
     </CCol>
   </CRow>
-  
+  <FullCalendar style="margin-top: 50px;"></FullCalendar>
 </template>
 
 <script>
@@ -64,11 +64,13 @@ import axios from 'axios';
 import { addDays, format } from 'date-fns';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
-
+// import Calendar from './Calendar.vue'
+import FullCalendar from './FullCalendar.vue';
 
 export default {
   components: {
     CIcon,
+    FullCalendar
   },
   setup() {
     return {
@@ -154,7 +156,7 @@ export default {
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so we add 1
 
-        console.log(currentMonth)
+        
         var filteredArray = this.table2.filter(obj => {
           const [year, month, day] = obj.startdate.split('-');
           const objDate = new Date(day, month - 1, year);

@@ -1,172 +1,151 @@
-<script>
-import { defineComponent } from 'vue'
-import FullCalendar from '@fullcalendar/vue3'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { INITIAL_EVENTS, createEventId } from './event-utils'
-
-export default defineComponent({
-  components: {
-    FullCalendar,
-  },
-  data() {
-    return {
-      calendarOptions: {
-        plugins: [
-          dayGridPlugin,
-          timeGridPlugin,
-          interactionPlugin // needed for dateClick
-        ],
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        initialView: 'dayGridMonth',
-        initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
-        editable: true,
-        selectable: true,
-        selectMirror: true,
-        dayMaxEvents: true,
-        weekends: true,
-        select: this.handleDateSelect,
-        eventClick: this.handleEventClick,
-        eventsSet: this.handleEvents
-        /* you can update a remote database when these fire:
-        eventAdd:
-        eventChange:
-        eventRemove:
-        */
-      },
-      currentEvents: [],
-    }
-  },
-  methods: {
-    handleWeekendsToggle() {
-      this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
-    },
-    handleDateSelect(selectInfo) {
-      let title = prompt('Please enter a new title for your event')
-      let calendarApi = selectInfo.view.calendar
-
-      calendarApi.unselect() // clear date selection
-
-      if (title) {
-        calendarApi.addEvent({
-          id: createEventId(),
-          title,
-          start: selectInfo.startStr,
-          end: selectInfo.endStr,
-          allDay: selectInfo.allDay
-        })
-      }
-    },
-    handleEventClick(clickInfo) {
-      if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-        clickInfo.event.remove()
-      }
-    },
-    handleEvents(events) {
-      this.currentEvents = events
-    },
-  }
-})
-
-</script>
-
+<!-- TodoCalendar.vue -->
 <template>
-  <div class='demo-app'>
-    <!-- <div class='demo-app-sidebar'>
-      <div class='demo-app-sidebar-section'>
-        <h2>Instructions</h2>
-        <ul>
-          <li>Select dates and you will be prompted to create a new event</li>
-          <li>Drag, drop, and resize events</li>
-          <li>Click an event to delete it</li>
-        </ul>
-      </div>
-      <div class='demo-app-sidebar-section'>
-        <label>
-          <input
-            type='checkbox'
-            :checked='calendarOptions.weekends'
-            @change='handleWeekendsToggle'
-          />
-          toggle weekends
-        </label>
-      </div>
-      <div class='demo-app-sidebar-section'>
-        <h2>All Events ({{ currentEvents.length }})</h2>
-        <ul>
-          <li v-for='event in currentEvents' :key='event.id'>
-            <b>{{ event.startStr }}</b>
-            <i>{{ event.title }}</i>
-          </li>
-        </ul>
-      </div>
-    </div> -->
-    <div class='demo-app-main'>
-      <FullCalendar
-        class='demo-app-calendar'
-        :options='calendarOptions'
-      >
-        <template v-slot:eventContent='arg'>
-          <b>{{ arg.timeText }}</b>
-          <i>{{ arg.event.title }}</i>
-        </template>
-      </FullCalendar>
+  <div class="calendar">
+    <div class="header">
+      <button @click="prevMonth">&lt;</button>
+      <h2>{{ currentMonth.format('MMMM YYYY') }}</h2>
+      <button @click="nextMonth">&gt;</button>
     </div>
+    <table>
+      <thead>
+        <tr>
+          <th v-for="day in days" :key="day">{{ day }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="week in calendar" :key="week">
+          <td v-for="day in week" :key="day.date.format('YYYY-MM-DD')" @click="selectDate(day)">
+            {{ day.date.format('D') }}
+            <ul v-if="day.tasks.length">
+              <li v-for="task in day.tasks" :key="task"><b>{{ task }}</b></li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
-<style lang='css'>
+<script>
+import moment from 'moment';
+export default {
+  data() {
+    return {
+      currentMonth: moment(),
+      days: ['Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ', 'Κυρ'],
+      calendar: [],
+      tasks: [
+        { date: '2024-01-10', task: 'Task 1' },
+        { date: '2024-01-15', task: 'Task 2' },
+        // Add more tasks as needed
+      ],
+    };
+  },
+  mounted() {
+    this.generateCalendar();
+  },
+  methods: {
+    generateCalendar() {
+      this.calendar = []; // Clear previous data
 
-h2 {
-  margin: 0;
-  font-size: 16px;
+      // Determine the first day of the month
+      const firstDayOfMonth = this.currentMonth.clone().startOf('month');
+
+      // Determine the total number of days in the month
+      const daysInMonth = this.currentMonth.daysInMonth();
+
+      // Determine the weekday of the first day (0 for Sunday, 1 for Monday, etc.)
+      // const startDayOfWeek = firstDayOfMonth.day();
+
+      // Create an array representing the calendar structure
+      let calendarRow = [];
+
+      // Add empty cells for days before the first day of the month
+      // for (let i = 0; i < startDayOfWeek; i++) {
+      //   calendarRow.push({
+      //     date: null,
+      //     tasks: [],
+      //   });
+      // }
+
+      // Continue with the logic to populate the rest of the calendar
+      for (let i = 0; i < daysInMonth; i++) {
+        const currentDay = firstDayOfMonth.clone().add(i, 'days');
+        const dayTasks = this.getTasksForDate(currentDay);
+
+        calendarRow.push({
+          date: currentDay,
+          tasks: dayTasks,
+        });
+
+        // Start a new row for each week (Sunday to Saturday)
+        if (currentDay.day() === 6 || i === daysInMonth - 1) {
+          this.calendar.push(calendarRow);
+          calendarRow = [];
+        }
+      }
+    },
+
+    getTasksForDate(date) {
+      // Return tasks for the given date
+      return this.tasks
+        .filter(task => moment(task.date).isSame(date, 'day'))
+        .map(task => task.task);
+    },
+
+    nextMonth() {
+      this.currentMonth.add(1, 'month');
+      this.generateCalendar();
+    },
+    prevMonth() {
+      this.currentMonth.subtract(1, 'month');
+      this.generateCalendar();
+    },
+    selectDate(day) {
+      console.log(day.date.format('YYYY-MM-DD'))
+    },
+  },
+};
+</script>
+
+<style scoped>
+.calendar {
+  max-width: 100%;
+  margin: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  
+}
+
+th,
+td {
+  padding: 30px;
+  border: 1px solid #ddd;
+  text-align: center;
+  background-color: rgb(179, 207, 229);
+}
+
+td:hover {
+  background-color: #f5f5f5;
 }
 
 ul {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  padding: 0 0 0 1.5em;
 }
 
 li {
-  margin: 1.5em 0;
-  padding: 0;
+  margin-bottom: 5px;
 }
-
-b { /* used for event dates/times */
-  margin-right: 3px;
-}
-
-.demo-app {
-  display: flex;
-  min-height: 100%;
-  font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
-  font-size: 14px;
-}
-
-.demo-app-sidebar {
-  width: 300px;
-  line-height: 1.5;
-  background: #eaf9ff;
-  border-right: 1px solid #d3e2e8;
-}
-
-.demo-app-sidebar-section {
-  padding: 2em;
-}
-
-.demo-app-main {
-  flex-grow: 1;
-  padding: 3em;
-}
-
-.fc { /* the calendar root */
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
 </style>

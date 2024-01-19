@@ -13,6 +13,7 @@
     </div>
     <CFormLabel style="font-size: 20px; font-weight: bold;">Επιλογή Ασφαλιστικής</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="asfalid" v-on:change="getTable">
+                            <option>Επιλογή Ασφαλιστικής</option>
                             <option v-for="entry in asfal" :key="entry.inid" :value="entry.inid"> {{ entry.iname }}</option>
                         </CFormSelect>
     <CTable striped bordered>
@@ -81,7 +82,7 @@ export default {
             table2: [],
             stable:[],
             asfal: [],
-            asfalid: 1,
+            asfalid: '',
             xlDemo: false,
             cus: '',
             con: '',
