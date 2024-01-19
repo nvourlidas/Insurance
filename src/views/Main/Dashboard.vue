@@ -35,27 +35,28 @@
   </CRow>
   <CRow style="margin-top: 10%;">
     <CCol :xs="4">
-      <CWidgetStatsF color="primary" :padding="false" title="Σνολο Πωλησεων (Μεικτα)" :value="smikta">
+      <CWidgetStatsF color="primary" :padding="false" title="Σύνολο Πωλησεων (Μεικτα)" :value="smikta">
         <template #icon>
           <CIcon icon="cil-Euro" size="xxl" />
         </template>
       </CWidgetStatsF>
     </CCol>
     <CCol :xs="4">
-      <CWidgetStatsF color="info" :padding="false" title="Σνολο Πωλησεων (Προμηθεια)" :value="sprom">
+      <CWidgetStatsF color="info" :padding="false" title="Σύνολο Πωλησεων (Προμηθεια)" :value="sprom">
         <template #icon>
           <CIcon icon="cil-Euro" size="xxl" />
         </template>
       </CWidgetStatsF>
     </CCol>
     <CCol :xs="4">
-      <CWidgetStatsF color="warning" :padding="false" title="Title" value="$1.999,50">
+      <CWidgetStatsF color="warning" :padding="false" title="Πωλησεις Τρεχων Μηνας (Μεικτα)" :value="stm">
         <template #icon>
           <CIcon icon="cil-Euro" size="xxl" />
         </template>
       </CWidgetStatsF>
     </CCol>
   </CRow>
+  
 </template>
 
 <script>
@@ -64,9 +65,10 @@ import { addDays, format } from 'date-fns';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 
+
 export default {
   components: {
-    CIcon
+    CIcon,
   },
   setup() {
     return {
@@ -85,7 +87,8 @@ export default {
       futureDate: null,
       smikta: 0,
       sprom: 0,
-      
+      stm: 0,
+
     }
   },
 
@@ -110,7 +113,7 @@ export default {
         this.table2 = res.data
         this.totalCon = res.data.length
         var j = 0
-        var t=0
+        var t = 0
         for (var i = 0; i < res.data.length; i++) {
           var dateParts = res.data[i].enddate.split('-');
           var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
@@ -118,34 +121,55 @@ export default {
           var date = new Date(formattedDate);
           var dat = format(date, 'yyyy-MM-dd')
 
-          
+
           if (dat >= this.todayDate && dat <= this.futureDate) {
             j += 1
-           
+
           }
 
           if (j > 0) {
-          this.ligoun = j
-        }
+            this.ligoun = j
+          }
           var dateParts2 = res.data[i].paydate.split('-');
           var formattedDate2 = dateParts2[2] + '-' + dateParts2[1] + '-' + dateParts2[0];
 
           var date2 = new Date(formattedDate2);
           var dat2 = format(date2, 'yyyy-MM-dd')
 
-          if (dat2 >= this.todayDate && dat2 <= this.futureDate && res.data[i].ispaid == 0 && res.data[i].paymentmethod !=4) {
-            if(dat >= this.todayDate && dat <= this.futureDate){
+          if (dat2 >= this.todayDate && dat2 <= this.futureDate && res.data[i].ispaid == 0 && res.data[i].paymentmethod != 4) {
+            if (dat >= this.todayDate && dat <= this.futureDate) {
               console.log(dat2)
-            }else{
-            t += 1
+            } else {
+              t += 1
             }
           }
           if (t > 0) {
-          this.topay = t
+            this.topay = t
+          }
+
+
+
         }
-        
+
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so we add 1
+
+        console.log(currentMonth)
+        var filteredArray = this.table2.filter(obj => {
+          const [year, month, day] = obj.startdate.split('-');
+          const objDate = new Date(day, month - 1, year);
+          
+
+          // Check if the month matches the current month
+          return objDate.getMonth() + 1 === currentMonth;
+        });
+
+        var numb2 = 0
+        for (i = 0; i < filteredArray.length; i++) {
+          numb2 += parseInt(filteredArray[i].mikta)
+          this.stm = numb2.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
         }
-        
+
         var numb = 0
         var numbe = 0
         for (i = 0; i < res.data.length; i++) {

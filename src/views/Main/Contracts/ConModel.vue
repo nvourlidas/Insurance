@@ -85,7 +85,7 @@
                                     v-model="searchQuery" />
                                 <CFormSelect size="sm" class="mb-3" multiple v-model="table.custid" :html-size="2">
                                     <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{
-                                        entry.afm }}
+                                        entry.afm }} ({{ entry.name }} {{ entry.surname }})
                                     </option>
                                 </CFormSelect>
                             </div>
@@ -187,6 +187,7 @@
                         <CTable striped bordered>
                             <CTableHead>
                                 <CTableRow style="text-align: center;">
+                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Αριθμός Ζημίας</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
@@ -201,6 +202,7 @@
                             <CTableBody>
                                 <CTableRow v-for="(entry, id) in zimies" :item="entry" :key="id"
                                     style="text-align: center;">
+                                    <CTableDataCell>{{ id+1 }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.znumber }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.conumber }}</CTableDataCell>

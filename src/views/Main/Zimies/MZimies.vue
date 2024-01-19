@@ -9,12 +9,6 @@
             <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
             Σύνολο Ζημιών: <b>{{ sunolo }}</b>
         </CButton>
-        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
-            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
-        </CButton>
-        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
-            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
-        </CButton>
         <CButton color="success" variant="ghost" @click="this.$router.push('/AddZimia')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilDollar" size="xl"></CIcon> Νέα Ζημία
             </b> </CButton>
@@ -22,27 +16,23 @@
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
-                <CTableHeaderCell scope="col">Αριθμός Ζημίας</CTableHeaderCell>
+                <CTableHeaderCell scope="col">#</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ποσό</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Ημερομηνία Καταχώρησης</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Κατάσταση</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Εισαγωγή Αρχείου</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Προβολή Αρχείων</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Αποστολή</CTableHeaderCell>
             </CTableRow>
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell>{{ entry.znumber }}</CTableDataCell>
+                <CTableDataCell>{{ id+1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.poso }}</CTableDataCell>
-                <CTableDataCell>{{ entry.inputdate }}</CTableDataCell>
-                <CTableDataCell v-if="entry.status == 1">Σε Εκρεμότητα</CTableDataCell>
-                <CTableDataCell v-if="entry.status == 2">Εγκρίθηκε</CTableDataCell>
                 <CTableDataCell>
                     <input type="file" id="upload" hidden @change="upload">
                     <label for="upload">
@@ -50,13 +40,18 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
-                        <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
+                    <CButton style="color: rgb(23, 33, 167);" @click="viewF(entry.zid)">
+                        <CIcon :icon="icon.cilFolderOpen" height="32"></CIcon>
+                    </CButton>
+                </CTableDataCell>
+                <CTableDataCell>
+                    <CButton style="color: rgb(23, 33, 167);" @click="sent(entry.zid)">
+                        <CIcon :icon="icon.cilSend" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
             </CTableRow>
             <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
-                <CTableDataCell colspan="9">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
             </CTableRow>
         </CTableBody>
     </CTable>
@@ -69,7 +64,8 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files"></CusModal>
+    <sendModal :visible="modal2" @close-modal="closeModalHandler" :zim="zim"></sendModal>
+    <ViewFiles :visible="view" @close="view = false" :files="files"></ViewFiles>
 </template>
 
 <script>
@@ -77,10 +73,8 @@ import { CButton, CTableBody } from '@coreui/vue';
 import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
-import CusModal from './CusModel.vue'
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import sendModal from './sendModal.vue'
+import ViewFiles from './ViewFiles.vue'
 
 
 export default {
@@ -97,10 +91,13 @@ export default {
             sunolo: '',
             file: null,
             id: '',
+            modal2: false,
+            view: false,
+            zim: Object,
         };
     },
     created() {
-        axios.get('/zimies').then(res => { this.table = res.data, this.sunolo = res.data.length });
+        axios.get('/zimies').then(res => { this.table = res.data.filter(obj => obj.znumber == '-'), this.sunolo = this.table.length});
     },
 
     computed: {
@@ -138,36 +135,28 @@ export default {
             }
         },
 
-        deletecus(id) {
-            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/customer', {
-                    data: { id: id }
-                }).then(this.table.splice(1,id)).catch(err => console.log(err, id))
-            }
-        },
-        showModal(id) {
-            this.xlDemo = true;
+        sent(id) {
+            this.modal2 = true
             for (var i = 0; i < this.table.length; i++) {
-                if (id == this.table[i].cid) {
-                    this.cus = this.table[i]
+                if (id == this.table[i].zid) {
+                    this.zim = this.table[i]
                 }
             }
-            axios.get('/contracts-insurance').then(res => {
-                var j = 0;
-                this.con = []
-                for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].custid == id) {
-                        this.con[j] = res.data[i]
-                        j++
-                    }
-                }
-            })
+            console.log(this.zim)
+        },
 
+        closeModalHandler(id) {
+            this.modal2 = false;
+            this.table.splice(1, id)
+        },
+
+        viewF(id){
+            this.view = true
             axios.get('/files').then(res => {
                 var c = 0
                 this.files = []
                 for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].cuid == id) {
+                    if (res.data[i].zimid == id) {
                         this.files[c] = res.data[i]
                         c++
                     }
@@ -203,55 +192,9 @@ export default {
                 });
         },
 
-        downloadExcel() {
-            const data = this.table;
-
-            
-            const columnsToExport = [
-                { header: 'Όνομα', key: 'name' },
-                { header: 'Επίθετο', key: 'surname' },
-                { header: 'Αριθμός Ζημίας', key: 'znumber' },
-                { header: 'Αριθμός Συμβολαίου', key: 'conumber' },
-                { header: 'Ασφαλιστική', key: 'iname' },
-                { header: 'Ποσό', key: 'poso' },
-                { header: 'Ημερομηνία Καταχώρησης', key: 'inputdate' },
-            ];
-
-            // Extract only the selected columns from the data
-            const filteredData = data.map(item => {
-                const filteredItem = {};
-                columnsToExport.forEach(column => {
-                    filteredItem[column.header] = item[column.key];
-                });
-                return filteredItem;
-            });
-
-            // Create a worksheet with custom columns and headers
-            const ws = XLSX.utils.json_to_sheet(filteredData, { header: columnsToExport.map(column => column.header) });
-
-            // Create a new workbook and append the worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-            // Save the workbook as an Excel file
-            XLSX.writeFile(wb, 'Ζημίες.xlsx');
-        },
-
-        downloadPDF() {
-            const pdf = new jsPDF();
-            pdf.setFont('times', 'normal');
-            const columns = ['Όνομα', 'Επίθετο', 'Email', 'Κινητό', 'Σταθερό', 'Τ.Κ.', 'Ημερομηνία Γέννησης', 'ΑΦΜ'];
-            const data = this.table.map(obj => [obj.name, obj.surname, obj.email, obj.cellphone, obj.phone, obj.postcode, obj.birthday, obj.afm]);
-
-            pdf.autoTable({
-                head: [columns],
-                body: data,
-            });
-            pdf.save('Πελάτες.pdf');
-        },
     },
 
-    components: { CTableBody, CButton, CIcon, CusModal },
+    components: { CTableBody, CButton, CIcon, sendModal, ViewFiles },
     setup() {
         return {
             icon,

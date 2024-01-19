@@ -10,12 +10,12 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Όνομα</CFormLabel>
-                            <CFormInput type="text" floatingLabel="Όνομα" placeholder="Όνομα" v-model="name" required/>
+                            <CFormInput type="text" floatingLabel="Όνομα" placeholder="Όνομα" v-model="name"/>
                         
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Επίθετο</CFormLabel> 
-                            <CFormInput type="text" floatingLabel="Επίθετο" placeholder="Όνομα" v-model="surname" required/>
+                            <CFormInput type="text" floatingLabel="Επίθετο" placeholder="Όνομα" v-model="surname"/>
                         
                     </CCol>
                 </CRow>
@@ -34,7 +34,7 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">ΑΦΜ</CFormLabel>
-                            <CFormInput type="text" floatingLabel="ΑΦΜ" placeholder="ΑΦΜ" v-model="afm" required/>
+                            <CFormInput type="text" floatingLabel="ΑΦΜ" placeholder="ΑΦΜ" v-model="afm"/>
                         
                     </CCol>
                     <CCol md>
@@ -49,13 +49,13 @@
                             <CFormInput type="text" floatingLabel="Τ.Κ." placeholder="T.K." v-model="tk" />
                         
                     </CCol>
-                    <CCol md>
+                    <CCol md v-if="status == 'A'">
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημερομηνία Γέννησης</CFormLabel>
                         <VueDatePicker v-model="birthdate" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy" model-type="yyyy-MM-dd"></VueDatePicker>
                     </CCol>
                 </CRow>
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
-                    <CCol md>
+                    <CCol md v-if="status == 'A'">
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Φύλλο</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="gender">                          
                             <option value="A">Άνδρας</option>

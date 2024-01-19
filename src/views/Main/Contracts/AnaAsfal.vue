@@ -94,7 +94,7 @@ export default {
         };
     },
     created() {
-        
+        this.getTable
         axios.get('/customer').then(res => {this.table2 = res.data})
         axios.get('/insurances')
                 .then(res => {

@@ -3,7 +3,7 @@ export default [
     component: 'CNavItem',
     name: 'Dashboard',
     to: '/dashboard',
-    icon: 'cil-speedometer',
+    icon: 'cil-Graph',
   },
   {
     component: 'CNavItem',
@@ -15,7 +15,7 @@ export default [
     component: 'CNavItem',
     name: 'Συμβόλαια',
     to: '/Contracts',
-    icon: 'cil-file',
+    icon: 'cib-Buffer',
     items: [
         {
           component: 'CNavItem',
@@ -43,7 +43,7 @@ export default [
     component: 'CNavItem',
     name: 'Ζημίες',
     to: '/#',
-    icon: 'cil-dollar',
+    icon: 'cil-BalanceScale',
     items: [
       {
         component: 'CNavItem',
@@ -52,9 +52,29 @@ export default [
       },
       {
         component: 'CNavItem',
-        name: 'Όλες οι Ζημίες',
+        name: 'Μη Απεσταλμένα',
+        to: '/MZimies',
+      },
+      {
+        component: 'CNavItem',
+        name: 'Απεσταλμένα',
         to: '/Zimies',
       },
     ]
   },
+  {
+    component: 'CNavItem',
+    name: 'Ασφαλιστηκές',
+    to: '/Asfal',
+    icon: 'cil-Institution',
+  },
+
+  {
+    component: 'CNavItem',
+    name: 'Κλάδοι Ασφάλισης',
+    to: '/Branches',
+    icon: 'cil-Move',
+  },
 ]
+
+

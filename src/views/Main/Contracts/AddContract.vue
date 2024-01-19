@@ -10,37 +10,37 @@
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Αριθμός Συμβολαίου</CFormLabel>
                         <CFormInput type="text" floatingLabel="Αριθμός Συμβολαίου" placeholder="Αριθμός Συμβολαίου"
-                            v-model="connumber" required/>
+                            v-model="connumber" />
 
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">ΑΦΜ Πελάτη</CFormLabel>
                         <CFormInput type="text" floatingLabel="ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
-                        <CFormSelect size="lg" multiple  class="mb-3" v-model="afmpelati" :html-size="2" required>
-                            
-                            <option v-for="entry in filteredItems" :key="entry.afm" :value="entry.afm"> {{ entry.afm }} ({{ entry.name  }} {{ entry.surname }})</option>
+                        <CFormSelect size="lg" multiple class="mb-3" v-model="afmpelati" :html-size="2">
+
+                            <option v-for="entry in filteredItems" :key="entry.afm" :value="entry.afm"> {{ entry.afm }} ({{
+                                entry.name }} {{ entry.surname }})</option>
                         </CFormSelect>
-                        
                     </CCol>
                 </CRow>
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημ. Έναρξης</CFormLabel>
                         <VueDatePicker v-model="startdate" placeholder="Ημερομηνία Έναρξης" format="dd-MM-yyyy"
-                            model-type="yyyy-MM-dd" required></VueDatePicker>
+                            model-type="yyyy-MM-dd"></VueDatePicker>
 
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ημ. Λήξης</CFormLabel>
                         <VueDatePicker v-model="enddate" placeholder="Ημερομηνία Λήξης" format="dd-MM-yyyy"
-                            model-type="yyyy-MM-dd" required></VueDatePicker>
+                            model-type="yyyy-MM-dd"></VueDatePicker>
                     </CCol>
                     <CRow :xs="{ gutter: 2 }" style="padding: 20px; text-align: center;">
                         <CCol md>
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Καθαρά</CFormLabel>
                             <CInputGroup class="mb-3">
                                 <CInputGroupText>€</CInputGroupText>
-                                <CFormInput type="text" placeholder="0.00" v-model="clean" required/>
+                                <CFormInput type="text" placeholder="0.00" v-model="clean" />
                             </CInputGroup>
 
                         </CCol>
@@ -48,14 +48,14 @@
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Μεικτά</CFormLabel>
                             <CInputGroup class="mb-3">
                                 <CInputGroupText>€</CInputGroupText>
-                                <CFormInput type="text" placeholder="0.00" v-model="mikta" required/>
+                                <CFormInput type="text" placeholder="0.00" v-model="mikta" />
                             </CInputGroup>
                         </CCol>
                         <CCol md>
                             <CFormLabel style="font-size: 20px; font-weight: bold;">Προμήθεια</CFormLabel>
                             <CInputGroup class="mb-3">
                                 <CInputGroupText>€</CInputGroupText>
-                                <CFormInput type="text" placeholder="0.00" v-model="prom" required/>
+                                <CFormInput type="text" placeholder="0.00" v-model="prom" />
                             </CInputGroup>
                         </CCol>
                     </CRow>
@@ -63,14 +63,14 @@
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Ασφαλιστική</CFormLabel>
-                        <CFormSelect size="lg" class="mb-3" v-model="asfal" required>
+                        <CFormSelect size="lg" class="mb-3" v-model="asfal">
                             <option>Επιλογή Ασφαλιστικής</option>
                             <option v-for="entry in insur" :key="entry.inid" :value="entry.inid"> {{ entry.iname }}</option>
                         </CFormSelect>
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Κλάδος</CFormLabel>
-                        <CFormSelect size="lg" class="mb-3" v-model="branch" required>
+                        <CFormSelect size="lg" class="mb-3" v-model="branch">
                             <option>Επιλογή Κλάδου</option>
                             <option v-for="entry in bran" :key="entry.bid" :value="entry.bid"> {{ entry.bname }}</option>
                         </CFormSelect>
@@ -108,7 +108,6 @@
                         αρχείου Συμβολαίου </b>
                     <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
                 </label>
-                {{ coid }}
             </CCardBody>
             <CCardFooter style="text-align: center; padding: 20px;">
                 <CButton type="submit" size="lg" color="primary">
@@ -148,7 +147,7 @@ export default {
             live: false,
             insur: [],
             bran: [],
-            cus:[],
+            cus: [],
             coid: '',
             paydate: '',
             ispaid: '',
@@ -171,11 +170,11 @@ export default {
     computed: {
         filteredItems() {
             return this.cus.filter(item =>
-                    Object.values(item)
-                        .join(' ')
-                        .toLowerCase()
-                        .includes(this.searchQuery.toLowerCase())
-                );
+                Object.values(item)
+                    .join(' ')
+                    .toLowerCase()
+                    .includes(this.searchQuery.toLowerCase())
+            );
         },
     },
     methods: {
@@ -198,7 +197,7 @@ export default {
                     pinakida: this.pinakida,
                     ispaid: this.ispaid,
                     paydate: this.paydate
-                }).then(res => { this.upload(res.data.id)})
+                }).then(res => { this.upload(res.data.id) })
                     .catch(err => console.log(err))
 
                 this.connumber = ''
@@ -216,11 +215,11 @@ export default {
                 this.pinakida = ''
                 this.paydate = ''
                 this.ispaid = ''
-                this.todayDate= new Date()
+                this.todayDate = new Date()
 
                 this.live = true
 
-               
+
             }
             setTimeout(() => {
                 this.live = false;
@@ -242,7 +241,7 @@ export default {
                 })
         },
 
-        getcustomers(){
+        getcustomers() {
             axios.get('/customer').then(res => {
                 this.cus = res.data
             })
@@ -252,9 +251,9 @@ export default {
             this.cfile = event.target.files[0];
         },
 
-        upload(id){
-            if(this.cfile){
-            const formData = new FormData();
+        upload(id) {
+            if (this.cfile) {
+                const formData = new FormData();
                 const blob = new Blob([this.cfile], { type: 'application/octet-stream;charset=utf-8' });
                 formData.append('file', blob, this.cfile.name);
                 formData.append('filename', this.cfile.name);
@@ -269,71 +268,36 @@ export default {
                     .catch(error => {
                         console.error(error);
                     });
-                }
+            }
         },
 
-        getpaydate(){
-            this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
-            const parts = this.todayDate.split("-");
-                var month = parseInt(parts[1].padStart(2, '0'), 10)
-                var year = parseInt(parts[0].padStart(2, '0'),10)
-                var ldm =''
+        getpaydate() {
+            var newDate = new Date(this.startdate);
+
             if (this.method == 1) {
-                if(month == 12){
-                    year += 1
-                    month = 0
-                }
-                const firstDayOfNextMonth = new Date(year, month +1, 1);
-                const lastDayOfMonth = new Date(firstDayOfNextMonth - 1);
-                ldm =lastDayOfMonth.getDate()
+                newDate.setMonth(newDate.getMonth() + 1);
 
-                month += 1
-                if(month<10){
-                    this.paydate = year + '-0' + month  + '-' + ldm
-                }else{
-                    this.paydate = year + '-' + month  + '-' + ldm
-                }
-                this.ispaid = 0
-            }else if(this.method == 2){
-                if(month +3 > 12){
-                    year += 1
-                    month = month + 3 -12
-                }else{
-                    month += 3
-                }
-                const firstDayOfNextMonth = new Date(year, month, 1);
-                const lastDayOfMonth = new Date(firstDayOfNextMonth - 1);
-                ldm =lastDayOfMonth.getDate()
+                newDate = format(newDate, 'yyyy-MM-dd')
+                this.paydate = newDate
+                this.ispaid =0
+                console.log(this.paydate)
+            } else if (this.method == 2) {
+                newDate.setMonth(newDate.getMonth() + 3);
 
-                
-                if(month<10){
-                    this.paydate = year + '-0' + month  + '-' + ldm
-                }else{
-                    this.paydate = year + '-' + month  + '-' + ldm
-                }
-                this.ispaid = 0
+                newDate = format(newDate, 'yyyy-MM-dd')
+                this.paydate = newDate
+                this.ispaid =0
             }else if(this.method == 3){
-                if(month + 6 > 12){
-                    year += 1
-                    month = month + 6 -12
-                }else{
-                    month += 6
-                }
-                const firstDayOfNextMonth = new Date(year, month, 1);
-                const lastDayOfMonth = new Date(firstDayOfNextMonth - 1);
-                ldm =lastDayOfMonth.getDate()
+                newDate.setMonth(newDate.getMonth() + 6);
 
-                
-                if(month<10){
-                    this.paydate = year + '-0' + month  + '-' + ldm
-                }else{
-                    this.paydate = year + '-' + month  + '-' + ldm
-                }
-                this.ispaid = 0
+                newDate = format(newDate, 'yyyy-MM-dd')
+                this.paydate = newDate
+                this.ispaid =0
             }else{
                 this.paydate = this.enddate
-                this.ispaid = 1
+                this.ispaid =1
             }
+        
         },
     },
 

@@ -1,5 +1,5 @@
 <template>
-    <CModal size="xl">
+    <CModal fullscreen size="xl">
         <CModalHeader>
             <CModalTitle>
                 <h2>{{ cus.name }} {{ cus.surname }}</h2>
@@ -125,6 +125,7 @@
                         <CTable striped bordered>
                             <CTableHead>
                                 <CTableRow style="text-align: center;">
+                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Κλάδος Ασφάλησης</CTableHeaderCell>
@@ -137,6 +138,7 @@
                             </CTableHead>
                             <CTableBody>
                                 <CTableRow v-for="(entry, id) in con" :item="entry" :key="id" style="text-align: center;">
+                                    <CTableDataCell>{{ id + 1 }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.bname }}
@@ -156,6 +158,9 @@
                                             <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                                         </CButton>
                                     </CTableDataCell>
+                                </CTableRow>
+                                <CTableRow v-if="con.length === 0" style="text-align: center;">
+                                    <CTableDataCell colspan="9">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
                                 </CTableRow>
                             </CTableBody>
                         </CTable>
@@ -201,7 +206,7 @@
                                     <CTableDataCell>{{ entry.inputdate }}</CTableDataCell>
                                     <CTableDataCell v-if="entry.status == 1">Σε Εκρεμότητα</CTableDataCell>
                                     <CTableDataCell v-if="entry.status == 2">Εγκρίθηκε</CTableDataCell>
-                                    
+
                                     <CTableDataCell>
                                         <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
                                             <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
@@ -222,7 +227,7 @@
                 <COffcanvasTitle>Λεπτομέριες Συμβολαίου</COffcanvasTitle>
                 <CCloseButton class="text-reset" @click="() => { lept = false }" />
             </COffcanvasHeader>
-            <OffCanvas :body="conbody"></OffCanvas>
+            <OffCanvas :body="conbody" :confiles="confiles"></OffCanvas>
         </COffcanvas>
     </CModal>
 </template>
@@ -265,6 +270,7 @@ export default {
             vis: false,
             table: Object,
             table2: this.con,
+            confiles: [],
 
 
 
@@ -306,6 +312,18 @@ export default {
                     this.conbody = this.con[i]
                 }
             }
+
+            axios.get('/files').then(res => {
+                var c = 0
+                this.confiles = []
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].coid == id) {
+                        this.confiles[c] = res.data[i]
+                        c++
+                    }
+                }
+            })
+            console.log(this.confiles)
         },
         deletecon(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
