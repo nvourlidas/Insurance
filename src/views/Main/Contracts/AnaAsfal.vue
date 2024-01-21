@@ -11,6 +11,7 @@
             </CButton>
         <CButton  color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b><CIcon :icon="icon.cilClipboard" size="xl" ></CIcon> Νέο Συμβόλαιο</b> </CButton>
     </div>
+    <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Συμβολαίου</CAlert>
     <CFormLabel style="font-size: 20px; font-weight: bold;">Επιλογή Ασφαλιστικής</CFormLabel>
                         <CFormSelect size="lg" class="mb-3" v-model="asfalid" v-on:change="getTable">
                             <option>Επιλογή Ασφαλιστικής</option>
@@ -46,7 +47,7 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.conid)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid, id)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -92,6 +93,7 @@ export default {
             sunolo: 0,
             files: [],
             zimies: [],
+            live: false,
         };
     },
     created() {
@@ -159,12 +161,15 @@ export default {
             })
         },
 
-        deletecus(id) {
+        deletecon(id, j) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/customer', {
+                axios.delete('/contracts', {
                     data: { id: id }
-                }).catch(err => console.log(err, id))
+                }).then(this.table.splice(j, 1), this.live = true).catch(err => console.log(err, id))
             }
+            setTimeout(() => {
+                this.live = false;
+            }, 3000);
         },
         showModal(id) {
             this.xlDemo = true;

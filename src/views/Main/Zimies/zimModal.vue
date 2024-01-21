@@ -56,7 +56,7 @@
                     <CCardBody class="files">
                         <div v-for="(entry, id) in files" :item="entry" :key="id" class="download">
                             <CButton @click="download(entry.id, entry.filename)"> <br>
-                                <CIcon :icon="icon.cilArrowThickToBottom" height="32"></CIcon> {{ entry.filename }}
+                                <CIcon :icon="icon.cilCloudDownload" height="32"></CIcon> {{ entry.filename }}
                             </CButton>
                         </div>
                     </CCardBody>

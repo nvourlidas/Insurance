@@ -1,5 +1,6 @@
 <template>
     <CAlert color="success" :visible="live">Επιτυχημέμη Εισαγωγή Πελάτη</CAlert>
+    <CAlert color="danger" :visible="live2">Αποτυχία Εισαγωγής Συμβολαίου. Δοκιμάστε Ξανά</CAlert>
     <CCard>
         <CForm @submit.prevent="Add">
             <CCardHeader style="text-align: center; padding: 20px; background-color: rgba(100, 100, 96, 0.158);">
@@ -102,6 +103,7 @@ export default {
             gender: 'A',
             status: 'A',
             live: false,
+            live2: false,
         };
     },
     setup() {
@@ -124,7 +126,8 @@ export default {
                 property: this.status,
                 birthday: this.birthdate,
                 afm: this.afm
-            }).catch(err => console.log(err))
+            }).then(this.live = true)
+            .catch(err => {console.log(err), this.live2 = true})
 
             this.name= '',
             this.surname= '',
@@ -135,12 +138,13 @@ export default {
             this.tk= '',
             this.birthdate= '',
             this.gender= '',
-            this.status= '',
-            this.live= true
+            this.status= ''
+            
         }
 
         setTimeout(() => {
                 this.live = false;
+                this.live2 = false
             }, 3000);
     },
 },

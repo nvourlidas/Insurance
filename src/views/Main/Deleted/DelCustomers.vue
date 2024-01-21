@@ -9,17 +9,9 @@
             <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
             Σύνολο Πελατών: <b>{{ sunolo }}</b>
         </CButton>
-        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
-            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
-        </CButton>
-        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
-            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
-        </CButton>
-        <CButton color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b>
-                <CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης
-            </b> </CButton>
     </div>
-    <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Πελάτη</CAlert>
+    <CAlert color="success" :visible="live">Επιτυχής Επαναφορά Πελάτη</CAlert>
+    <CAlert color="danger" :visible="live2">Επιτυχής Ολική Διαγραφή Πελάτη</CAlert>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -29,8 +21,8 @@
                 <CTableHeaderCell scope="col">Κινητό</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Email</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Εισαγωγή Αρχείου</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Διαγραφή</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Επαναφορά Πελάτη</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Οριστική Διαγραφή</CTableHeaderCell>
             </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -46,13 +38,12 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <input type="file" id="upload" hidden @change="upload">
-                    <label for="upload">
-                        <CIcon :icon="icon.cilCloudUpload" height="32" @click="changeid(entry.cid)"></CIcon>
-                    </label>
+                    <CButton style="color: rgb(35, 172, 58);" @click="returncus(entry.cid, j)">
+                        <CIcon :icon="icon.cilActionRedo" height="32"></CIcon>
+                    </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid,id)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid, j)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -79,11 +70,7 @@ import { CButton, CTableBody } from '@coreui/vue';
 import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
-import CusModal from './CusModel.vue'
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
+import CusModal from '../Customers/CusModel.vue'
 
 export default {
     data() {
@@ -101,10 +88,12 @@ export default {
             id: '',
             zimies: [],
             live: false,
-        };
+            live2: false,
+        }
     },
+
     created() {
-        axios.get('/customer').then(res => { this.table = res.data, this.sunolo = res.data.length });
+        axios.get('/deleted_customer').then(res => { this.table = res.data, this.sunolo = res.data.length });
     },
 
     computed: {
@@ -143,13 +132,12 @@ export default {
         },
 
         deletecus(id, j) {
-            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/customer', {
-                    data: { id: id }
-                }).then(this.table.splice(j,1),this.live = true).catch(err => console.log(err, id))
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει οριστική διαγραφή;')) {
+                axios.delete(`/perma-delete/${id}`).then(this.table.splice(j,1), this.live2 = true).catch(err => console.log(err, id))
             }
+
             setTimeout(() => {
-                this.live = false;
+                this.live2 = false;
             }, 3000);
         },
         showModal(id) {
@@ -193,81 +181,18 @@ export default {
             })
         },
 
-        //     handleFileChange(event) {
-        //   this.file = event.target.files[0];
-        //     },
-
-        changeid(cuid) {
-            this.id = cuid
+        returncus(cuid, j) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Επαναφορά;')) {
+                axios.delete('/deletedcustomer', {
+                    data: { id: cuid }
+                }).then(this.table.splice(j,1),this.live = true ).catch(err => console.log(err, cuid))
+            }
+            setTimeout(() => {
+                this.live = false;
+            }, 3000);
 
         },
 
-        upload(event) {
-            this.file = event.target.files[0];
-            const formData = new FormData();
-            const blob = new Blob([this.file], { type: 'application/octet-stream;charset=utf-8' });
-            formData.append('file', blob, this.file.name);
-            formData.append('filename', this.file.name);
-            formData.append('cuid', this.id);
-            formData.append('coid', 0);
-            formData.append('zimid', 0);
-
-            axios.post('/upload', formData)
-                .then(response => {
-                    console.log(response.data, formData);
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        },
-
-        downloadExcel() {
-            const data = this.table;
-
-            
-            const columnsToExport = [
-                { header: 'Όνομα', key: 'name' },
-                { header: 'Επίθετο', key: 'surname' },
-                { header: 'ΑΦΜ', key: 'afm' },
-                { header: 'Email', key: 'email' },
-                { header: 'Kινητό', key: 'cellphone' },
-                { header: 'Σταθερό', key: 'phone' },
-                { header: 'T.K.', key: 'postcode' },
-                { header: 'Ημερομηνία Γέννησης', key: 'birthday' },
-            ];
-
-            // Extract only the selected columns from the data
-            const filteredData = data.map(item => {
-                const filteredItem = {};
-                columnsToExport.forEach(column => {
-                    filteredItem[column.header] = item[column.key];
-                });
-                return filteredItem;
-            });
-
-            // Create a worksheet with custom columns and headers
-            const ws = XLSX.utils.json_to_sheet(filteredData, { header: columnsToExport.map(column => column.header) });
-
-            // Create a new workbook and append the worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-            // Save the workbook as an Excel file
-            XLSX.writeFile(wb, 'Πελάτες.xlsx');
-        },
-
-        downloadPDF() {
-            const pdf = new jsPDF();
-            pdf.setFont('times', 'normal');
-            const columns = ['Όνομα', 'Επίθετο', 'Email', 'Κινητό', 'Σταθερό', 'Τ.Κ.', 'Ημερομηνία Γέννησης', 'ΑΦΜ'];
-            const data = this.table.map(obj => [obj.name, obj.surname, obj.email, obj.cellphone, obj.phone, obj.postcode, obj.birthday, obj.afm]);
-
-            pdf.autoTable({
-                head: [columns],
-                body: data,
-            });
-            pdf.save('Πελάτες.pdf');
-        },
     },
 
     components: { CTableBody, CButton, CIcon, CusModal },
@@ -277,6 +202,7 @@ export default {
         }
     },
 }
+
 </script>
 
 <style scoped>

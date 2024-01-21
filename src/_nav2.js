@@ -1,6 +1,24 @@
 export default [
   {
     component: 'CNavItem',
+    name: 'Χρήστες',
+    to: '/#',
+    icon: 'cil-User',
+    items: [
+        {
+          component: 'CNavItem',
+          name: 'Όλοι οι Χρήστες',
+          to: '/Users',
+        },
+        {
+          component: 'CNavItem',
+          name: 'Εισαγωγή Χρήστη',
+          to: '/AddUser',
+        },
+    ],
+  },
+  {
+    component: 'CNavItem',
     name: 'Διεγραμμένα',
     to: '/Contracts',
     icon: 'cil-Trash',
@@ -8,13 +26,13 @@ export default [
         {
           component: 'CNavItem',
           name: 'Συμβόλαια',
-          to: '/Contracts',
+          to: '/DelContracts',
         },
         {
           component: 'CNavItem',
           name: 'Πελάτες',
-          to: '/Expire',
+          to: '/DelCustomers',
         },
-    ]
+    ],
   },
 ]

@@ -154,7 +154,7 @@
                                         </CButton>
                                     </CTableDataCell>
                                     <CTableDataCell>
-                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid, id)">
+                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid)">
                                             <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                                         </CButton>
                                     </CTableDataCell>
@@ -172,7 +172,7 @@
                     <CCardBody class="files">
                         <div v-for="(entry, id) in files" :item="entry" :key="id" class="download">
                             <CButton @click="download(entry.id, entry.filename)"> <br>
-                                <CIcon :icon="icon.cilArrowThickToBottom" height="32"></CIcon> {{ entry.filename }}
+                                <CIcon :icon="icon.cilCloudDownload" height="32"></CIcon> {{ entry.filename }}
                             </CButton>
                         </div>
                     </CCardBody>
@@ -208,7 +208,7 @@
                                     <CTableDataCell v-if="entry.status == 2">Εγκρίθηκε</CTableDataCell>
 
                                     <CTableDataCell>
-                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
+                                        <CButton style="color: rgb(165, 49, 45);" @click="deletezim(entry.zid)">
                                             <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                                         </CButton>
                                     </CTableDataCell>
@@ -327,10 +327,15 @@ export default {
         },
         deletecon(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete(`/contracts`, {
+                axios.delete('/contracts', {
                     data: { id: id }
-                })
-                    .catch(err => console.log(err, id))
+                }).then(this.$emit('close')).catch(err => console.log(err, id))
+            }
+        },
+
+        deletezim(id) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
+                axios.delete(`/zimies/${id}`).then(this.$emit('close')).catch(err => console.log(err, id))
             }
         },
 

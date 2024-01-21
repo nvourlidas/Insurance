@@ -59,7 +59,7 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletezim(entry.zid, id)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -146,11 +146,9 @@ export default {
             }
         },
 
-        deletecus(id) {
+        deletezim(id, j) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/customer', {
-                    data: { id: id }
-                }).then(this.table.splice(1,id)).catch(err => console.log(err, id))
+                axios.delete(`/zimies/${id}`).then(this.table.splice(j,1)).catch(err => console.log(err, id))
             }
         },
         showModal(id) {

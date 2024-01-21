@@ -19,6 +19,7 @@
                 <CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο
             </b> </CButton>
     </div>
+    <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Συμβολαίου</CAlert>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -66,7 +67,7 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.conid)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid, id)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -121,6 +122,7 @@ export default {
             files: [],
             modal2: false,
             zimies: [],
+            live: false,
         };
     },
     created() {
@@ -185,11 +187,11 @@ export default {
             }
         },
 
-        deletecus(id) {
+        deletecon(id, j) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/customer', {
+                axios.delete('/contracts', {
                     data: { id: id }
-                }).catch(err => console.log(err, id))
+                }).then(this.table.splice(j, 1), this.live = true).catch(err => console.log(err, id))
             }
         },
 
@@ -200,6 +202,9 @@ export default {
                    inform: i
                 }).then(this.table[t].inform = i)
             }
+            setTimeout(() => {
+                this.live = false;
+            }, 3000);
         },
 
         showModal(id) {

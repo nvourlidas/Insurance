@@ -24,6 +24,11 @@ export default [
         },
         {
           component: 'CNavItem',
+          name: 'Ομαδικά',
+          to: '/Contracts',
+        },
+        {
+          component: 'CNavItem',
           name: 'Προς Λήξη',
           to: '/Expire',
         },

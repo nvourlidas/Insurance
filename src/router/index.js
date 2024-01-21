@@ -79,6 +79,16 @@ const routes = [
         name: 'Branches',
         component: () => import('@/views/Main/Asfal/Branches'),
       },
+      {
+        path: '/DelCustomers',
+        name: 'DelCustomers',
+        component: () => import('@/views/Main/Deleted/DelCustomers'),
+      },
+      {
+        path: '/DelContracts',
+        name: 'DelContracts',
+        component: () => import('@/views/Main/Deleted/DelContracts'),
+      },
     ],
   },
   {

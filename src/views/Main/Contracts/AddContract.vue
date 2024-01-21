@@ -1,5 +1,6 @@
 <template>
-    <CAlert color="success" :visible="live">Επιτυχημέμη Εισαγωγή Συμβολαίου</CAlert>
+    <CAlert color="success" :visible="live">Επιτυχής Εισαγωγή Συμβολαίου</CAlert>
+    <CAlert color="danger" :visible="live2">Αποτυχία Εισαγωγής Συμβολαίου. Δοκιμάστε Ξανά</CAlert>
     <CCard>
         <CForm @submit.prevent="Add">
             <CCardHeader style="text-align: center; padding: 20px; background-color: rgba(100, 100, 96, 0.158);">
@@ -102,6 +103,16 @@
                         </CFormSelect>
                     </CCol>
                 </CRow>
+                <CRow v-if="omadiko == 1">
+                    <CCol md>
+                        <CFormLabel style="font-size: 20px; font-weight: bold;">Προσθήκη Πελατών Σε Ομαδικό</CFormLabel>
+                        <CFormInput type="text" floatingLabel="ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
+                        <CFormSelect size="sm" class="mb-3" v-model="teamcus" multiple>
+                            <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{ entry.afm }} ({{
+                                entry.name }} {{ entry.surname }})</option>
+                        </CFormSelect>
+                    </CCol>
+                </CRow>
                 <CFormInput type="file" id="upload" @change="handleFileChange" hidden />
                 <label for="upload"
                     style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Ανέβασμα
@@ -145,6 +156,7 @@ export default {
             omadiko: 2,
             cfile: '',
             live: false,
+            live2: false,
             insur: [],
             bran: [],
             cus: [],
@@ -153,6 +165,7 @@ export default {
             ispaid: '',
             todayDate: new Date(),
             searchQuery: '',
+            teamcus: [],
         };
     },
     setup() {
@@ -196,9 +209,10 @@ export default {
                     omadiko: this.omadiko,
                     pinakida: this.pinakida,
                     ispaid: this.ispaid,
-                    paydate: this.paydate
-                }).then(res => { this.upload(res.data.id) })
-                    .catch(err => console.log(err))
+                    paydate: this.paydate,
+                    inform: 0
+                }).then(res => { this.upload(res.data.id), this.live = true })
+                    .catch(err => { console.log(err), this.live2 = true })
 
                 this.connumber = ''
                 this.afmpelati = ''
@@ -217,12 +231,13 @@ export default {
                 this.ispaid = ''
                 this.todayDate = new Date()
 
-                this.live = true
+
 
 
             }
             setTimeout(() => {
                 this.live = false;
+                this.live2 = false;
             }, 3000);
         },
 
@@ -279,25 +294,25 @@ export default {
 
                 newDate = format(newDate, 'yyyy-MM-dd')
                 this.paydate = newDate
-                this.ispaid =0
+                this.ispaid = 0
                 console.log(this.paydate)
             } else if (this.method == 2) {
                 newDate.setMonth(newDate.getMonth() + 3);
 
                 newDate = format(newDate, 'yyyy-MM-dd')
                 this.paydate = newDate
-                this.ispaid =0
-            }else if(this.method == 3){
+                this.ispaid = 0
+            } else if (this.method == 3) {
                 newDate.setMonth(newDate.getMonth() + 6);
 
                 newDate = format(newDate, 'yyyy-MM-dd')
                 this.paydate = newDate
-                this.ispaid =0
-            }else{
+                this.ispaid = 0
+            } else {
                 this.paydate = this.enddate
-                this.ispaid =1
+                this.ispaid = 1
             }
-        
+
         },
     },
 
