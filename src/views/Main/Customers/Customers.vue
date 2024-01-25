@@ -8,7 +8,7 @@
         <div>
         <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
             <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
-            Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
+            Σύνολο Πελατών: <b>{{ sunolo }}</b>
         </CButton>
         <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
             <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon>Excel
