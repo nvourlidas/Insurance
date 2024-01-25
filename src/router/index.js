@@ -40,6 +40,11 @@ const routes = [
         component: () => import('@/views/Main/Contracts/Contracts'),
       },
       {
+        path: '/Omadika',
+        name: 'Omadika',
+        component: () => import('@/views/Main/Contracts/Omadika'),
+      },
+      {
         path: '/Expire',
         name: 'Expire',
         component: () => import('@/views/Main/Contracts/Expire'),
@@ -53,6 +58,11 @@ const routes = [
         path: '/AnaAsfal',
         name: 'AnaAsfal',
         component: () => import('@/views/Main/Contracts/AnaAsfal'),
+      },
+      {
+        path: '/AnaBranch',
+        name: 'AnaBranch',
+        component: () => import('@/views/Main/Contracts/AnaBranch'),
       },
       {
         path: '/AddZimia',
@@ -88,6 +98,21 @@ const routes = [
         path: '/DelContracts',
         name: 'DelContracts',
         component: () => import('@/views/Main/Deleted/DelContracts'),
+      },
+      {
+        path: '/AddUser',
+        name: 'AddUser',
+        component: () => import('@/views/Main/Users/AddUser'),
+      },
+      {
+        path: '/Users',
+        name: 'Users',
+        component: () => import('@/views/Main/Users/Users'),
+      },
+      {
+        path: '/Files',
+        name: 'Files',
+        component: () => import('@/views/Main/Files/Files'),
       },
     ],
   },

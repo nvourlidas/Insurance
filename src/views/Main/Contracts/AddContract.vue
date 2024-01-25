@@ -15,8 +15,8 @@
 
                     </CCol>
                     <CCol md>
-                        <CFormLabel style="font-size: 20px; font-weight: bold;">ΑΦΜ Πελάτη</CFormLabel>
-                        <CFormInput type="text" floatingLabel="ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
+                        <CFormLabel style="font-size: 20px; font-weight: bold;">Αναζήτηση με ΑΦΜ Πελάτη</CFormLabel>
+                        <CFormInput type="text" floatingLabel="Αναζήτηση με ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
                         <CFormSelect size="lg" multiple class="mb-3" v-model="afmpelati" :html-size="2">
 
                             <option v-for="entry in filteredItems" :key="entry.afm" :value="entry.afm"> {{ entry.afm }} ({{
@@ -106,11 +106,40 @@
                 <CRow v-if="omadiko == 1">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Προσθήκη Πελατών Σε Ομαδικό</CFormLabel>
-                        <CFormInput type="text" floatingLabel="ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
-                        <CFormSelect size="sm" class="mb-3" v-model="teamcus" multiple>
+                        <CFormInput type="text" floatingLabel="Αναζήτηση με  ΑΦΜ Πελάτη" placeholder="Αναζήτηση με  ΑΦΜ Πελάτη" v-model="searchQuery" />
+                        <!-- <CFormSelect size="lg" class="mb-6" v-model="teamcus" multiple :html-size="6">
                             <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{ entry.afm }} ({{
                                 entry.name }} {{ entry.surname }})</option>
-                        </CFormSelect>
+                        </CFormSelect> -->
+                        <!-- <div v-for="entry in filteredItems" :key="entry.cid">
+                            <input type="checkbox" :value="entry" v-model="teamcus" id="cust" />
+                            <label :for="entry.cid">{{ entry.afm }} ({{
+                                entry.name }} {{ entry.surname }})</label>
+                        </div> -->
+                        <div class="custom-select">
+                            <div class="selected-values" @click="toggleDropdown">
+                                <span v-if="teamcus.length === 0">Επιλογή Πελατών</span>
+                                <span v-else>
+                                    Επιλεγμένοι Πελάτες: {{ teamcus.map(item => item.afm).join(', ') }} 
+                                </span>
+                            </div>
+
+                            <div v-show="dropdownVisible" class="dropdown">
+                                <div v-for="entry in filteredItems" :key="entry.cid">
+                                    <input type="checkbox" :value="entry" v-model="teamcus" id="color" />
+                                    <label :for="entry.cid">{{ entry.afm }} ({{
+                                entry.name }} {{ entry.surname }})</label>
+                                </div>
+                            </div>
+                        </div>
+                    </CCol>
+                    <CCol md>
+                        <h3>Επιλεγμένοι Πελάτες</h3>
+                        <div class="selected">
+                            <ul>
+                                <li  v-for="e in teamcus" :key="e.cid">{{ e.afm }} ({{ e.name }} {{e.surname}})</li>
+                            </ul>
+                        </div>
                     </CCol>
                 </CRow>
                 <CFormInput type="file" id="upload" @change="handleFileChange" hidden />
@@ -166,6 +195,7 @@ export default {
             todayDate: new Date(),
             searchQuery: '',
             teamcus: [],
+            dropdownVisible: false
         };
     },
     setup() {
@@ -210,7 +240,8 @@ export default {
                     pinakida: this.pinakida,
                     ispaid: this.ispaid,
                     paydate: this.paydate,
-                    inform: 0
+                    inform: 0,
+                    customers: this.teamcus
                 }).then(res => { this.upload(res.data.id), this.live = true })
                     .catch(err => { console.log(err), this.live2 = true })
 
@@ -240,6 +271,10 @@ export default {
                 this.live2 = false;
             }, 3000);
         },
+
+        toggleDropdown() {
+      this.dropdownVisible = !this.dropdownVisible;
+    },
 
         getInsuranes() {
             axios.get('/insurances')
@@ -320,3 +355,47 @@ export default {
     components: { CCardBody, VueDatePicker, CIcon }
 }
 </script>
+
+<style scoped>
+.custom-select {
+  position: relative;
+  width: 100%;
+  margin-bottom: 5%;
+}
+
+.selected-values {
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1;
+}
+
+.dropdown div {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown input {
+  margin-right: 5px;
+}
+
+.selected {
+    border: 1px solid;
+    border-radius: 20px;
+    overflow-y: scroll;
+    font-size: 19px;
+    max-height: 200px;
+}
+</style>

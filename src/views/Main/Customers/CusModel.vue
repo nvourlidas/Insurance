@@ -159,6 +159,28 @@
                                         </CButton>
                                     </CTableDataCell>
                                 </CTableRow>
+                                <CTableRow v-for="(entry, id) in omad" :item="entry" :key="id" style="text-align: center;">
+                                    <CTableDataCell>{{ id + 1 }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.bname }}
+                                    </CTableDataCell>
+                                    <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
+                                    <CTableDataCell v-if="entry.omadiko == 1">NAI</CTableDataCell>
+                                    <CTableDataCell v-if="entry.omadiko == 2">ΟΧΙ</CTableDataCell>
+                                    <CTableDataCell>
+                                        <CButton style="color: rgb(65, 45, 165);"
+                                            @click="lept = !lept, getconbody(entry.conid)">
+                                            <CIcon :icon="icon.cilArrowThickBottom" height="25"></CIcon>
+                                        </CButton>
+                                    </CTableDataCell>
+                                    <CTableDataCell>
+                                        <CButton style="color: rgb(165, 49, 45);" @click="deletecon(entry.conid)">
+                                            <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
+                                        </CButton>
+                                    </CTableDataCell>
+                                </CTableRow>
                                 <CTableRow v-if="con.length === 0" style="text-align: center;">
                                     <CTableDataCell colspan="9">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
                                 </CTableRow>
@@ -173,6 +195,10 @@
                         <div v-for="(entry, id) in files" :item="entry" :key="id" class="download">
                             <CButton @click="download(entry.id, entry.filename)"> <br>
                                 <CIcon :icon="icon.cilCloudDownload" height="32"></CIcon> {{ entry.filename }}
+                            </CButton>
+
+                            <CButton style="color: rgb(165, 49, 45); flex: right;" @click="deletefile(entry.id)">
+                                <CIcon :icon="icon.cilXCircle" height="42"></CIcon>
                             </CButton>
                         </div>
                     </CCardBody>
@@ -227,7 +253,7 @@
                 <COffcanvasTitle>Λεπτομέριες Συμβολαίου</COffcanvasTitle>
                 <CCloseButton class="text-reset" @click="() => { lept = false }" />
             </COffcanvasHeader>
-            <OffCanvas :body="conbody" :confiles="confiles"></OffCanvas>
+            <OffCanvas @close="lept = false" :body="conbody" :confiles="confiles"></OffCanvas>
         </COffcanvas>
     </CModal>
 </template>
@@ -249,6 +275,7 @@ export default {
         con: [],
         files: [],
         zimies: [],
+        omad: [],
     },
     setup() {
         return {
@@ -307,11 +334,14 @@ export default {
         },
 
         getconbody(id) {
-            for (var i = 0; i < this.con.length; i++) {
-                if (this.con[i].conid == id) {
-                    this.conbody = this.con[i]
+            axios.get('/contracts-customer').then(res => {
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].conid == id) {
+                        this.conbody = res.data[i]
+                    }
                 }
-            }
+            })
+
 
             axios.get('/files').then(res => {
                 var c = 0
@@ -336,6 +366,12 @@ export default {
         deletezim(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete(`/zimies/${id}`).then(this.$emit('close')).catch(err => console.log(err, id))
+            }
+        },
+
+        deletefile(id) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
+                axios.delete(`/files/${id}`).then(this.$emit('close')).catch(err => console.log(err, id))
             }
         },
 
@@ -418,6 +454,10 @@ export default {
 }
 
 .download {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     border: 1px solid;
     border-radius: 20px;
     text-align: center;

@@ -25,7 +25,7 @@ export default [
         {
           component: 'CNavItem',
           name: 'Ομαδικά',
-          to: '/Contracts',
+          to: '/Omadika',
         },
         {
           component: 'CNavItem',
@@ -41,6 +41,11 @@ export default [
           component: 'CNavItem',
           name: 'Ανα Ασφαλιστική',
           to: '/AnaAsfal',
+        },
+        {
+          component: 'CNavItem',
+          name: 'Ανα Κλάδο Ασφάλησης',
+          to: '/AnaBranch',
         },
     ]
   },
@@ -79,6 +84,13 @@ export default [
     name: 'Κλάδοι Ασφάλισης',
     to: '/Branches',
     icon: 'cil-Move',
+  },
+
+  {
+    component: 'CNavItem',
+    name: 'Έντυπα',
+    to: '/Files',
+    icon: 'cil-FolderOpen',
   },
 ]
 

@@ -8,15 +8,19 @@
         <CModalBody>
             <CRow class="nav">
                 <CButton :color="bcolor1" class="navbut"
-                    @click="but1 = !but1, but2 = false, but3 = false, but4 = false, color()">
+                    @click="but1 = !but1, but2 = false, but3 = false, but4 = false, but5 = false, color()">
                     Στοιχεία Συμβολαίου
                 </CButton>
+                <CButton :color="bcolor5" class="navbut" v-if="con.omadiko == 1"
+                    @click="but5 = !but5, but1 = false, but2 = false, but4 = false, but3 = false, color()">
+                    Πελάτες
+                </CButton>
                 <CButton :color="bcolor3" class="navbut"
-                    @click="but3 = !but3, but1 = false, but2 = false, but4 = false, color()">
+                    @click="but3 = !but3, but1 = false, but2 = false, but4 = false, but5 = false, color()">
                     Αρχεία Συμβολαίου
                 </CButton>
                 <CButton :color="bcolor4" class="navbut"
-                    @click="but4 = !but4, but1 = false, but2 = false, but3 = false, color()">
+                    @click="but4 = !but4, but1 = false, but2 = false, but3 = false, but5 = false, color()">
                     Ζημίες
                 </CButton>
             </CRow>
@@ -74,6 +78,11 @@
                                 </CTableRow>
                             </CTableBody>
                         </CTable>
+                        <!-- <div  v-for="(item, index) in test" :key="index">
+                            <div v-for="(e, i) in customers" :key="i">
+                                <p v-if="e.cid == item"> {{ e.name }}</p>
+                            </div>
+                        </div> -->
                         <CForm style="width: 80%; margin-top: 15px;" v-if="vis" @submit.prevent="upd">
                             <div class="edit">
                                 <CFormLabel style="margin-right: 5px; margin-left: 5px;">Αριθμός Συμβολαίου</CFormLabel>
@@ -177,6 +186,10 @@
                             <CButton @click="download(entry.id, entry.filename)"> <br>
                                 <CIcon :icon="icon.cilCloudDownload" height="32"></CIcon> {{ entry.filename }}
                             </CButton>
+
+                            <CButton style="color: rgb(165, 49, 45);" @click="deletefile(entry.id)">
+                                <CIcon :icon="icon.cilXCircle" height="42"></CIcon>
+                            </CButton>
                         </div>
                     </CCardBody>
                 </CCard>
@@ -202,7 +215,7 @@
                             <CTableBody>
                                 <CTableRow v-for="(entry, id) in zimies" :item="entry" :key="id"
                                     style="text-align: center;">
-                                    <CTableDataCell>{{ id+1 }}</CTableDataCell>
+                                    <CTableDataCell>{{ id + 1 }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.znumber }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
                                     <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
@@ -211,7 +224,7 @@
                                     <CTableDataCell>{{ entry.inputdate }}</CTableDataCell>
                                     <CTableDataCell v-if="entry.status == 1">Σε Εκρεμότητα</CTableDataCell>
                                     <CTableDataCell v-if="entry.status == 2">Εγκρίθηκε</CTableDataCell>
-                                    
+
                                     <CTableDataCell>
                                         <CButton style="color: rgb(165, 49, 45);" @click="deletezim(entry.zid)">
                                             <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
@@ -220,6 +233,78 @@
                                 </CTableRow>
                                 <CTableRow v-if="zimies.length === 0" style="text-align: center;">
                                     <CTableDataCell colspan="9">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                                </CTableRow>
+                            </CTableBody>
+                        </CTable>
+                    </CCardBody>
+                </CCard>
+            </CCollapse>
+            <CCollapse :visible="but5">
+                <CCard class="mt-3">
+                    <CCardHeader>
+                        <CButton color="primary" variant="ghost" @click="vis2 = !vis2"
+                            style=" height: 55px; margin-bottom: 20px;"><b>
+                                <CIcon :icon="icon.cilPlus" size="xl"></CIcon> Εισαγωγή Πελάτη
+                            </b> </CButton>
+                        <CForm @submit.prevent="Add" v-if="vis2">
+                            <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
+                                <CCol md>
+                                    <CFormLabel style="margin-right: 5px; margin-left: 5px;">Αναζήτηση ΑΦΜ Πελάτη</CFormLabel>
+                                <CFormInput type="text" floatingLabel="Αναζήτηση ΑΦΜ Πελάτη" placeholder="Αναζήτηση ΑΦΜ Πελάτη"
+                                    v-model="searchQuery" />
+                                <CFormSelect size="sm" class="mb-3"  v-model="cuid" :html-size="2">
+                                    <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{
+                                        entry.afm }} ({{ entry.name }} {{ entry.surname }})
+                                    </option>
+                                </CFormSelect>                            
+                                    <CButton type="submit" size="md" color="primary">
+                                        <CIcon :icon="icon.cilSave" size="lg" /> Εισαγωγή Πελάτη
+                                    </CButton>
+                                </CCol>
+                            </CRow>
+                        </CForm>
+                    </CCardHeader>
+                    <CCardBody class="cbody">
+                        <CTable striped bordered>
+                            <CTableHead>
+                                <CTableRow style="text-align: center;">
+                                    <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ονοματεπώνυμο</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">ΑΦΜ</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Email</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Κινητό</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Σταθερό</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Φύλο</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Τ.Κ.</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ημερομηνία Γέννησης</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Ιδιότητα</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col">Αφαίρεση</CTableHeaderCell>
+                                </CTableRow>
+                            </CTableHead>
+                            <CTableBody>
+                                <CTableRow v-for="(entry, id) in omadcus" :item="entry" :key="id"
+                                    style="text-align: center;">
+                                    <CTableDataCell>{{ id + 1 }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.afm }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.email }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.cellphone }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.phone }}</CTableDataCell>
+                                    <CTableDataCell v-if="entry.gender == 'A'">Άνδρας</CTableDataCell>
+                                    <CTableDataCell v-if="entry.gender == 'G'">Γυναίκα</CTableDataCell>
+                                    <CTableDataCell>{{ entry.postcode }}</CTableDataCell>
+                                    <CTableDataCell>{{ entry.birthday }}</CTableDataCell>
+                                    <CTableDataCell v-if="entry.property == 'A'">Φυσικό Πρόσωπο</CTableDataCell>
+                                    <CTableDataCell v-if="entry.property == 'N'">Νομικό Πρόσωπο</CTableDataCell>
+                                    <CTableDataCell>
+                                        <CButton style="color: rgb(189, 62, 62);" @click="remove(entry.cuid)">
+                                            <CIcon :icon="icon.cilBan" height="25"></CIcon>
+                                        </CButton>
+                                    </CTableDataCell>
+                                </CTableRow>
+                                <CTableRow v-if="omadcus.length === 0" style="text-align: center;">
+                                    <CTableDataCell colspan="11">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα
+                                    </CTableDataCell>
                                 </CTableRow>
                             </CTableBody>
                         </CTable>
@@ -250,6 +335,7 @@ export default {
         branch: [],
         mod: Number,
         zimies: [],
+        omadcus: [],
     },
     setup() {
         return {
@@ -261,13 +347,17 @@ export default {
             but1: true,
             but3: false,
             but4: false,
+            but5: false,
             bcolor1: '',
             bcolor3: '',
             bcolor4: '',
+            bcolor5: '',
             vis: false,
+            vis2: false,
             conbody: Object,
             table: Object,
             searchQuery: '',
+            cuid: '',
         }
     },
 
@@ -294,21 +384,53 @@ export default {
                 this.bcolor1 = 'dark'
                 this.bcolor3 = ''
                 this.bcolor4 = ''
+                this.bcolor5 = ''
             } else if (this.but3) {
                 this.bcolor3 = 'dark'
                 this.bcolor1 = ''
-
                 this.bcolor4 = ''
-            } else {
+                this.bcolor5 = ''
+            } else if (this.but4) {
                 this.bcolor3 = ''
                 this.bcolor1 = ''
                 this.bcolor4 = 'dark'
+                this.bcolor5 = ''
+            } else {
+                this.bcolor3 = ''
+                this.bcolor1 = ''
+                this.bcolor4 = ''
+                this.bcolor5 = 'dark'
+            }
+        },
+
+        Add(){
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Εισαγωγή;')) {
+                axios.post('/omadika', {
+                    coid: this.con.conid,
+                    cuid: this.cuid
+                }).then(this.$emit('close'), this.vis2 = false).catch(err => console.log(err))
             }
         },
 
         deletezim(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete(`/zimies/${id}`).then(this.$emit('close')).catch(err => console.log(err, id))
+            }
+        },
+
+        deletefile(id) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
+                axios.delete(`/files/${id}`).then(this.$emit('close')).catch(err => console.log(err, id))
+            }
+        },
+
+        remove(id) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Αφαίρεση;')) {
+                axios.delete('/omadika', {
+                    data: { 
+                        cuid: id, 
+                        coid: this.con.conid }
+                }).then(this.$emit('close')).catch(err => console.log(err, id))
             }
         },
 
@@ -397,6 +519,10 @@ export default {
 }
 
 .download {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     border: 1px solid;
     border-radius: 20px;
     text-align: center;

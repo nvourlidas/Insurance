@@ -1,5 +1,6 @@
 <template>
     <CAlert color="success" :visible="live">Επιτυχημέμη Εισαγωγή Ζημίας</CAlert>
+    <CAlert color="danger" :visible="live2">Αποτυχία Εισαγωγής Ζημίας. Δοκιμάστε Ξανά</CAlert>
     <CCard>
         <CForm @submit.prevent="Add">
             <CCardHeader style="text-align: center; padding: 20px; background-color: rgba(100, 100, 96, 0.158);">
@@ -93,6 +94,7 @@ export default {
             status: 1,
             cfile: '',
             live: false,
+            live2: false,
             insur: [],
             cus: [],
             con: [],
@@ -145,9 +147,10 @@ export default {
                     inputdate: '-'
                 }).then(res => {
                     setTimeout(() => {this.$router.push('/MZimies')}, 1000)
+                    this.live = true
                     console.log(res)
                     })
-                    .catch(err => console.log(err))
+                    .catch(err => {console.log(err), this.live2 = true})
 
                 this.znumber = ''
                 this.asfal = ''
@@ -159,12 +162,13 @@ export default {
                 this.cfile = ''
                 this.todayDate = new Date()
 
-                this.live = true
+                
 
 
             }
             setTimeout(() => {
                 this.live = false;
+                this.live2 = false;
             }, 3000);
         },
 

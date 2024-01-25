@@ -58,6 +58,9 @@
                             <CButton @click="download(entry.id, entry.filename)"> <br>
                                 <CIcon :icon="icon.cilCloudDownload" height="32"></CIcon> {{ entry.filename }}
                             </CButton>
+                            <CButton style="color: rgb(165, 49, 45); flex: right;" @click="deletefile(entry.id)"> 
+                                <CIcon :icon="icon.cilXCircle" height="42"></CIcon>
+                            </CButton>
                         </div>
                     </CCardBody>
                 </CCard>
@@ -131,6 +134,12 @@ export default {
                 .catch(error => {
                     console.error(error);
                 });
+        },
+
+        deletefile(id) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
+                axios.delete(`/files/${id}`).then(this.$emit('close')).catch(err => console.log(err, id))
+            }
         },
     },
 

@@ -14,6 +14,8 @@
             </CCol>
         </CRow>
             </CForm>
+            <CAlert color="success" :visible="live2">Επιτυχής Εισαγωγή Κλάδου</CAlert>
+            <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Κλάδου</CAlert>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -27,7 +29,7 @@
                 <CTableDataCell>{{ id+1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.bname }}</CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.inid)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletein(entry.bid, id)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -46,6 +48,8 @@ export default {
             table: [],
             name: '',
             vis: false,
+            live: false,
+            live2: false,
         }
     },
 
@@ -57,6 +61,7 @@ export default {
 
     created(){
         this.getins()
+        
     },
 
     methods: {
@@ -65,8 +70,27 @@ export default {
         },
 
         Add(){
-            console.log(4)
-        }
+            axios.post('/branches', {
+                bname: this.name
+            }).then(res => {
+                this.table.push({ bid: res.data.id, bname: this.name }),
+                this.live2 = true,
+                this.vis = false,
+                this.name = ''
+            }).catch(err => console.log(err))
+            setTimeout(() => {
+                this.live2 = false;
+            }, 3000);
+        },
+
+        deletein(id, j) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
+                axios.delete(`/branches/${id}`).then(this.table.splice(j, 1), this.live = true).catch(err => console.log(err, id))
+            }
+            setTimeout(() => {
+                this.live = false;
+            }, 3000);
+        },
     }
 }
 

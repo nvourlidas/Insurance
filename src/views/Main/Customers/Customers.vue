@@ -5,21 +5,21 @@
             style="width: 20%; border: 2px solid;" />
     </CInputGroup>
     <div class="top">
-        <CButton color="primary" variant="outline" disabled>
-            <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
-            Σύνολο Πελατών: <b>{{ sunolo }}</b>
+        <div>
+        <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
+            <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
+            Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
         </CButton>
-        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
-            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
+        <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
+            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon>Excel
         </CButton>
-        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
-            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
-        </CButton>
+    </div>
         <CButton color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης
             </b> </CButton>
     </div>
     <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Πελάτη</CAlert>
+    <CAlert color="success" :visible="live2">Επιτυχής Εισαγωγή Αρχείου</CAlert>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -71,7 +71,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies"></CusModal>
+    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies" :omad="omad"></CusModal>
 </template>
 
 <script>
@@ -81,8 +81,7 @@ import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import CusModal from './CusModel.vue'
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+
 
 
 export default {
@@ -101,6 +100,8 @@ export default {
             id: '',
             zimies: [],
             live: false,
+            live2: false,
+            omad: [],
         };
     },
     created() {
@@ -191,6 +192,18 @@ export default {
                     }
                 }
             })
+
+            axios.get(`/omadika`).then(res => {
+                var k=0
+                this.omad =[]
+                for(var i=0; i<res.data.length; i++){
+                    if(res.data[i].cuid == id){
+                        this.omad[k] = res.data[i]
+                        k++
+                    }
+                }
+                
+            })
         },
 
         //     handleFileChange(event) {
@@ -215,10 +228,14 @@ export default {
             axios.post('/upload', formData)
                 .then(response => {
                     console.log(response.data, formData);
+                    this.live2 = true
                 })
                 .catch(error => {
                     console.error(error);
                 });
+                setTimeout(() => {
+                this.live2 = false;
+            }, 3000);
         },
 
         downloadExcel() {
@@ -256,18 +273,6 @@ export default {
             XLSX.writeFile(wb, 'Πελάτες.xlsx');
         },
 
-        downloadPDF() {
-            const pdf = new jsPDF();
-            pdf.setFont('times', 'normal');
-            const columns = ['Όνομα', 'Επίθετο', 'Email', 'Κινητό', 'Σταθερό', 'Τ.Κ.', 'Ημερομηνία Γέννησης', 'ΑΦΜ'];
-            const data = this.table.map(obj => [obj.name, obj.surname, obj.email, obj.cellphone, obj.phone, obj.postcode, obj.birthday, obj.afm]);
-
-            pdf.autoTable({
-                head: [columns],
-                body: data,
-            });
-            pdf.save('Πελάτες.pdf');
-        },
     },
 
     components: { CTableBody, CButton, CIcon, CusModal },
@@ -289,6 +294,12 @@ label {
     border-radius: 0.3rem;
     cursor: pointer;
 }
+
+.excel:hover{
+    background-color: rgb(16,124,65);
+    color: aliceblue;
+}
+
 
 .top {
     display: flex;

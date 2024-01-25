@@ -124,7 +124,7 @@ export default {
           var dat = format(date, 'yyyy-MM-dd')
 
 
-          if (dat >= this.todayDate && dat <= this.futureDate) {
+          if (dat <= this.futureDate) {
             j += 1
 
           }
@@ -138,8 +138,8 @@ export default {
           var date2 = new Date(formattedDate2);
           var dat2 = format(date2, 'yyyy-MM-dd')
 
-          if (dat2 >= this.todayDate && dat2 <= this.futureDate && res.data[i].ispaid == 0 && res.data[i].paymentmethod != 4) {
-            if (dat >= this.todayDate && dat <= this.futureDate) {
+          if (dat2 <= this.futureDate && res.data[i].ispaid == 0 && res.data[i].paymentmethod != 4) {
+            if (dat <= this.futureDate) {
               console.log(dat2)
             } else {
               t += 1

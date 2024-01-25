@@ -19,6 +19,7 @@
                 <CIcon :icon="icon.cilDollar" size="xl"></CIcon> Νέα Ζημία
             </b> </CButton>
     </div>
+    <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Ζημίας</CAlert>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -105,6 +106,7 @@ export default {
             sunolo: '',
             file: null,
             id: '',
+            live: false,
         };
     },
     created() {
@@ -148,7 +150,7 @@ export default {
 
         deletezim(id, j) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete(`/zimies/${id}`).then(this.table.splice(j,1)).catch(err => console.log(err, id))
+                axios.delete(`/zimies/${id}`).then(this.table.splice(j,1), this.live = true).catch(err => console.log(err, id))
             }
         },
         showModal(id) {

@@ -10,6 +10,8 @@
             Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
         </CButton>
     </div>
+    <CAlert color="success" :visible="live">Επιτυχής Επαναφορά Συμβολαίου</CAlert>
+    <CAlert color="danger" :visible="live2">Επιτυχής Ολική Διαγραφή Συμβολαίου</CAlert>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -40,7 +42,7 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(35, 172, 58);" @click="returncus(entry.cid, j)">
+                    <CButton style="color: rgb(35, 172, 58);" @click="returncon(entry.conid, j)">
                         <CIcon :icon="icon.cilActionRedo" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -65,7 +67,7 @@
         </CPaginationItem>
     </CPagination>
     <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :table2="table2" :insur="insur"
-        :branch="branch" :mod="1" :zimies="zimies"></ConModal>
+        :branch="branch" :mod="1" :zimies="zimies" :omadcus="omadcus"></ConModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -94,10 +96,13 @@ export default {
             insur: [],
             branch: [],
             zimies: [],
+            live: false,
+            live2: false,
+            omadcus: [],
         };
     },
     created() {
-        axios.get('/delcontracts').then(res => { this.table = res.data, this.sunolo = res.data.length });
+        axios.get('/deleted_contracts').then(res => { this.table = res.data, this.sunolo = res.data.length });
         axios.get('/customer').then(res => { this.table2 = res.data })
 
     },
@@ -141,11 +146,24 @@ export default {
         },
 
         deletecon(id, j) {
-            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/contracts', {
-                    data: { id: id }
-                }).then(this.table.splice(j, 1)).catch(err => console.log(err, id))
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει οριστική διαγραφή;')) {
+                axios.delete(`/permadelcontracts/${id}`).then(this.table.splice(j,1), this.live2 = true).catch(err => console.log(err, id))
             }
+
+            setTimeout(() => {
+                this.live2 = false;
+            }, 3000);
+        },
+        returncon(conid, j) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Επαναφορά;')) {
+                axios.delete('/deletedelcontracts', {
+                    data: { id: conid }
+                }).then(this.table.splice(j,1),this.live = true ).catch(err => console.log(err, conid))
+            }
+            setTimeout(() => {
+                this.live = false;
+            }, 3000);
+
         },
         showModal(id) {
             this.xlDemo = true;
@@ -181,6 +199,10 @@ export default {
                         t++
                     }
                 }
+            })
+
+            axios.get(`/omadika/${id}`).then(res => {
+                this.omadcus = res.data
             })
         },
     },

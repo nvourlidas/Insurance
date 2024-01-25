@@ -5,16 +5,15 @@
             style="width: 20%; border: 2px solid;" />
     </CInputGroup>
     <div class="top">
-        <CButton color="primary" variant="outline" disabled>
+        <div>
+        <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
             <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
             Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
         </CButton>
-        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
-            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
+        <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
+            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon> Excel
         </CButton>
-        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
-            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
-        </CButton>
+    </div>
         <CButton color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο
             </b> </CButton>
@@ -27,6 +26,7 @@
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ανανέωση</CTableHeaderCell>
@@ -44,6 +44,7 @@
                     </div>
                 </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
                 <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
@@ -86,7 +87,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies">
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies" :omadcus="omadcus">
     </ConModal>
     <reloadModal :visible="modal2" @close-modal="closeModalHandler" :con="con"></reloadModal>
 </template>
@@ -99,8 +100,7 @@ import ConModal from './ConModel.vue'
 import reloadModal from './reloadModal.vue'
 import { addDays, format } from 'date-fns';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+
 
 
 
@@ -123,6 +123,7 @@ export default {
             modal2: false,
             zimies: [],
             live: false,
+            omadcus: [],
         };
     },
     created() {
@@ -137,7 +138,7 @@ export default {
 
                 var date = new Date(formattedDate);
                 var dat = format(date, 'yyyy-MM-dd')
-                if (dat >= this.todayDate && dat <= this.futureDate) {
+                if (dat <= this.futureDate) {
                     this.table[j] = res.data[i]
                     j++
                 }
@@ -240,6 +241,10 @@ export default {
                     }
                 }
             })
+
+            axios.get(`/omadika/${id}`).then(res => {
+                this.omadcus = res.data
+            })
         },
 
         showModal2(id) {
@@ -295,19 +300,6 @@ export default {
 
         },
 
-        downloadPDF() {
-            const pdf = new jsPDF();
-            pdf.setFont('times', 'normal');
-            const columns = ['Αριθμός Συμβολαίου', 'Όνομα Πελάτη', 'Επίθετο Πελάτη', 'Ασφαλιστική', 'Κλάδος', 'Χαρακτηριστικό', 'Ημερομηνία Εναρξης', 'Ημερομηνία Λήξης', 'Καθαρά', 'Μεικτά', 'Προμήθεια'];
-            const data = this.table.map(obj => [obj.conumber, obj.name, obj.surname, obj.iname, obj.bname, obj.pinakida, obj.startdate, obj.enddate, obj.clear, obj.mikta, obj.promithia]);
-
-            pdf.autoTable({
-                head: [columns],
-                body: data,
-            });
-            pdf.save('Συμβόλαια-Λήξη.pdf');
-        },
-
     },
     components: { CTableBody, CButton, CIcon, ConModal, reloadModal },
     setup() {
@@ -329,6 +321,10 @@ export default {
     cursor: pointer;
 } */
 
+.excel:hover{
+    background-color: rgb(16,124,65);
+    color: aliceblue;
+}
 .top {
     display: flex;
     justify-content: space-between;

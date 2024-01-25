@@ -20,6 +20,7 @@
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ημερομηνία Επόμενης Πληρωμής</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ενημερώθηκε</CTableHeaderCell>
@@ -36,6 +37,7 @@
                     </div>
                 </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
                 <CTableDataCell>{{ entry.paydate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
@@ -73,7 +75,7 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies">
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies" :omadcus="omadcus">
     </ConModal>
 </template>
 <script>
@@ -104,6 +106,7 @@ export default {
             futureDate: null,
             files: [],
             zimies: [],
+            omadcus: [],
         };
     },
     created() {
@@ -123,7 +126,7 @@ export default {
                 var formattedDate2 = dateParts2[2] + '-' + dateParts2[1] + '-' + dateParts2[0];
                 var date2 = new Date(formattedDate2);
                 var dat2 = format(date2, 'yyyy-MM-dd')
-                if (dat >= this.todayDate && dat <= this.futureDate && res.data[i].ispaid === 0 && res.data[i].paymentmethod != 4) {
+                if (dat <= this.futureDate && res.data[i].ispaid === 0 && res.data[i].paymentmethod != 4) {
                     if (dat2 >= this.todayDate && dat2 <= this.futureDate) {
                         console.log(dat2)
                     } else {
@@ -227,6 +230,10 @@ export default {
                         t++
                     }
                 }
+            })
+
+            axios.get(`/omadika/${id}`).then(res => {
+                this.omadcus = res.data
             })
         },
 

@@ -140,6 +140,18 @@ export default {
                 this.live2 = false;
             }, 3000);
         },
+
+        returncus(cuid, j) {
+            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Επαναφορά;')) {
+                axios.delete('/deletedcustomer', {
+                    data: { id: cuid }
+                }).then(this.table.splice(j,1),this.live = true ).catch(err => console.log(err, cuid))
+            }
+            setTimeout(() => {
+                this.live = false;
+            }, 3000);
+
+        },
         showModal(id) {
             this.xlDemo = true;
             for (var i = 0; i < this.table.length; i++) {
@@ -181,17 +193,7 @@ export default {
             })
         },
 
-        returncus(cuid, j) {
-            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Επαναφορά;')) {
-                axios.delete('/deletedcustomer', {
-                    data: { id: cuid }
-                }).then(this.table.splice(j,1),this.live = true ).catch(err => console.log(err, cuid))
-            }
-            setTimeout(() => {
-                this.live = false;
-            }, 3000);
-
-        },
+        
 
     },
 

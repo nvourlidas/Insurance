@@ -84,6 +84,9 @@ import {
   cilBalanceScale,
   cilGraph,
   cilMove,
+  cilFolder,
+  cilLibrary,
+  cilFolderOpen,
 } from '@coreui/icons'
 
 export const iconsSet = Object.assign(
@@ -145,6 +148,9 @@ export const iconsSet = Object.assign(
     cilBalanceScale,
     cilGraph,
     cilMove,
+    cilFolder,
+    cilLibrary,
+    cilFolderOpen,
   },
   {
     cifUs,

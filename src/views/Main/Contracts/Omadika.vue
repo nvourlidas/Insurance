@@ -11,7 +11,7 @@
             Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
         </CButton>
         <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
-            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon> Excel
+            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon>Excel
         </CButton>
     </div>
         <CButton color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b>
@@ -113,8 +113,8 @@ export default {
         };
     },
     created() {
-        axios.get('/contracts-customer').then(res => { this.table = res.data
-             this.sunolo = res.data.length 
+        axios.get('/contracts-customer').then(res => { this.table = res.data.filter(item => item.omadiko === 1)
+             this.sunolo = this.table.length 
             });
         axios.get('/customer').then(res => { this.table2 = res.data })
         
@@ -207,7 +207,7 @@ export default {
                     }
                 }
             })
-            
+
             axios.get(`/omadika/${id}`).then(res => {
                 this.omadcus = res.data
             })
@@ -299,16 +299,15 @@ label {
     cursor: pointer;
 }
 
-.top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 2%;
-
-}
 
 .excel:hover{
     background-color: rgb(16,124,65);
     color: aliceblue;
 }
 
-</style>
+.top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2%;
+
+}</style>

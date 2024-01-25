@@ -19,7 +19,11 @@
             </b> </CButton>
     </div>
     <CAlert color="warning" :visible="live">Επιτυχής Διαγραφή Συμβολαίου</CAlert>
-    <CAlert color="success" :visible="live2">Επιτυχής Εισαγωγή Αρχείου</CAlert>
+    
+    <CFormSelect size="lg" class="mb-3" v-model="asfalid" v-on:change="getTable">
+        <option>Επιλογή Κλάδου Ασφάλησης</option>
+        <option v-for="entry in asfal" :key="entry.bid" :value="entry.bid"> {{ entry.bname }}</option>
+    </CFormSelect>
     <CTable striped bordered>
         <CTableHead>
             <CTableRow style="text-align: center;">
@@ -27,7 +31,6 @@
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Κλάδος</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
@@ -39,9 +42,12 @@
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
                 <CTableDataCell>{{ id+1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
-                <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
+                <CTableDataCell>
+                    <div v-for="(e, id2) in table2" :item="e" :key="id2">
+                        <p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p>
+                    </div>
+                </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
-                <CTableDataCell>{{ entry.bname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
                 <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
@@ -50,9 +56,9 @@
                     </CButton>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <input type="file" id="upload" hidden @change="upload">
+                    <input type="file" id="upload" hidden />
                     <label for="upload">
-                        <CIcon :icon="icon.cilCloudUpload" height="32" @click="changeid(entry.conid)"></CIcon>
+                        <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
@@ -61,7 +67,7 @@
                     </CButton>
                 </CTableDataCell>
             </CTableRow>
-            <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
+            <CTableRow v-if="table.length === 0" style="text-align: center;">
                 <CTableDataCell colspan="10">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
             </CTableRow>
         </CTableBody>
@@ -75,8 +81,8 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :table2="table2" :insur="insur"
-        :branch="branch" :mod="1" :zimies="zimies" :omadcus="omadcus"></ConModal>
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies"
+        :omadcus="omadcus"></ConModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -86,41 +92,34 @@ import * as icon from '@coreui/icons';
 import ConModal from './ConModel.vue'
 import * as XLSX from 'xlsx';
 
-
-
 export default {
     data() {
         return {
             table: [],
             table2: [],
             stable: [],
+            asfal: [],
+            asfalid: '',
             xlDemo: false,
             cus: '',
             con: '',
             currentPage: 1,
             itemsPerPage: 10,
             searchQuery: '',
-            sunolo: '',
+            sunolo: 0,
             files: [],
-            file: '',
-            insur: [],
-            branch: [],
             zimies: [],
             live: false,
-            live2: false,
             omadcus: [],
-            
         };
     },
     created() {
-        axios.get('/contracts-customer').then(res => { this.table = res.data
-             this.sunolo = res.data.length 
-            });
+        this.getTable
         axios.get('/customer').then(res => { this.table2 = res.data })
-        
-            
-        
-        
+        axios.get('/branches')
+            .then(res => {
+                this.asfal = res.data
+            })
 
     },
 
@@ -144,7 +143,10 @@ export default {
                 );
             }
         },
+
     },
+
+
 
     methods: {
         changePage(pageNumber) {
@@ -160,6 +162,20 @@ export default {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
             }
+        },
+
+        getTable: function () {
+            axios.get('/contracts-customer').then(res => {
+                var j = 0
+                this.table = []
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].bid == this.asfalid) {
+                        this.table[j] = res.data[i]
+                        j++
+                    }
+                }
+                this.sunolo = this.table.length
+            })
         },
 
         deletecon(id, j) {
@@ -193,51 +209,22 @@ export default {
                         c++
                     }
                 }
-                axios.get('/insurances').then(res => { this.insur = res.data })
-                axios.get('/branches').then(res => { this.branch = res.data })
             })
 
             axios.get('/zimies').then(res => {
-                var t =0
+                var t = 0
                 this.zimies = []
-                for(var i=0; i<res.data.length; i++){
-                    if(res.data[i].contractid == id){
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].contractid == id) {
                         this.zimies[t] = res.data[i]
                         t++
                     }
                 }
             })
-            
+
             axios.get(`/omadika/${id}`).then(res => {
                 this.omadcus = res.data
             })
-        },
-
-        changeid(coid) {
-            this.id = coid
-        },
-
-        upload(event) {
-            this.file = event.target.files[0];
-            const formData = new FormData();
-            const blob = new Blob([this.file], { type: 'application/octet-stream;charset=utf-8' });
-            formData.append('file', blob, this.file.name);
-            formData.append('filename', this.file.name);
-            formData.append('cuid', 0);
-            formData.append('coid', this.id);
-            formData.append('zimid', 0);
-
-            axios.post('/upload', formData)
-                .then(response => {
-                    console.log(response.data, formData);
-                    this.live2 = true
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-                setTimeout(() => {
-                this.live2 = false;
-            }, 3000);
         },
 
         downloadExcel() {
@@ -299,16 +286,14 @@ label {
     cursor: pointer;
 }
 
-.top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 2%;
-
-}
-
 .excel:hover{
     background-color: rgb(16,124,65);
     color: aliceblue;
 }
 
-</style>
+.top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2%;
+
+}</style>
