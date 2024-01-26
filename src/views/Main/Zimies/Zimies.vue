@@ -5,16 +5,15 @@
             style="width: 20%; border: 2px solid;" />
     </CInputGroup>
     <div class="top">
-        <CButton color="primary" variant="outline" disabled>
-            <CIcon :icon="icon.cilUser" class="flex-shrink-0 me-2" width="24" height="24" />
-            Σύνολο Ζημιών: <b>{{ sunolo }}</b>
+        <div>
+        <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
+            <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
+            Σύνολο Ζημιων: <b>{{ sunolo }}</b>
         </CButton>
-        <CButton @click="downloadExcel" style="border: 1px solid; margin-right: -20%;">
-            <CIcon :icon="icon.cilList" size="xl"></CIcon> Excel
+        <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
+            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon>Excel
         </CButton>
-        <CButton @click="downloadPDF" style="border: 1px solid; margin-left: -5%;">
-            <CIcon :icon="icon.cibAdobeAcrobatReader" size="xl"></CIcon> PDF
-        </CButton>
+    </div>
         <CButton color="success" variant="ghost" @click="this.$router.push('/AddZimia')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilDollar" size="xl"></CIcon> Νέα Ζημία
             </b> </CButton>
@@ -88,8 +87,6 @@ import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import zimModal from './zimModal.vue'
 
 
@@ -101,7 +98,7 @@ export default {
             zim: '',
             files: [],
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
             file: null,
@@ -212,7 +209,11 @@ export default {
         },
 
         downloadExcel() {
-            const data = this.table;
+            if (this.searchQuery.length === 0){
+                var data = this.table
+            }else{
+                 data = this.paginatedData;
+            }
 
             
             const columnsToExport = [
@@ -244,19 +245,6 @@ export default {
             // Save the workbook as an Excel file
             XLSX.writeFile(wb, 'Ζημίες.xlsx');
         },
-
-        downloadPDF() {
-            const pdf = new jsPDF();
-            pdf.setFont('times', 'normal');
-            const columns = ['Όνομα', 'Επίθετο', 'Email', 'Κινητό', 'Σταθερό', 'Τ.Κ.', 'Ημερομηνία Γέννησης', 'ΑΦΜ'];
-            const data = this.table.map(obj => [obj.name, obj.surname, obj.email, obj.cellphone, obj.phone, obj.postcode, obj.birthday, obj.afm]);
-
-            pdf.autoTable({
-                head: [columns],
-                body: data,
-            });
-            pdf.save('Πελάτες.pdf');
-        },
     },
 
     components: { CTableBody, CButton, CIcon, zimModal },
@@ -279,6 +267,10 @@ label {
     cursor: pointer;
 }
 
+.excel:hover{
+    background-color: rgb(16,124,65);
+    color: aliceblue;
+}
 .top {
     display: flex;
     justify-content: space-between;

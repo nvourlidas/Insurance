@@ -88,7 +88,7 @@ export default {
             cus: '',
             con: '',
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
             files: [],

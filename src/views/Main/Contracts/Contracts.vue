@@ -98,7 +98,7 @@ export default {
             cus: '',
             con: '',
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
             files: [],
@@ -117,11 +117,6 @@ export default {
              this.sunolo = res.data.length 
             });
         axios.get('/customer').then(res => { this.table2 = res.data })
-        
-            
-        
-        
-
     },
 
 
@@ -147,6 +142,31 @@ export default {
     },
 
     methods: {
+
+        checkdate(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
+        checkdate2(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate <= this.todayDate){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
         changePage(pageNumber) {
             this.currentPage = pageNumber;
             console.log([...this.table, ...this.table2])
@@ -241,8 +261,11 @@ export default {
         },
 
         downloadExcel() {
-            const data = this.paginatedData;
-
+            if (this.searchQuery.length === 0){
+                var data = this.table
+            }else{
+                data = this.paginatedData;
+            }
             
             const columnsToExport = [
                 { header: 'Αριθμός Συμβολαίου', key: 'conumber' },
@@ -304,6 +327,15 @@ label {
     justify-content: space-between;
     margin-bottom: 2%;
 
+}
+
+.red {
+    background-color: rgba(206, 16, 16, 0.699);
+    color: rgb(255, 255, 255);
+}
+
+.yellow {
+    background-color: rgba(245, 242, 32, 0.726);
 }
 
 .excel:hover{

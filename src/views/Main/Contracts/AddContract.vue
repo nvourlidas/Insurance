@@ -16,8 +16,9 @@
                     </CCol>
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Αναζήτηση με ΑΦΜ Πελάτη</CFormLabel>
-                        <CFormInput type="text" floatingLabel="Αναζήτηση με ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
-                        <CFormSelect size="lg" multiple class="mb-3" v-model="afmpelati" :html-size="2">
+                        <CFormInput type="text" floatingLabel="Αναζήτηση με ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη"
+                            v-model="searchQuery" />
+                        <CFormSelect size="lg" multiple class="mb-3" v-model="afmpelati" :html-size="5">
 
                             <option v-for="entry in filteredItems" :key="entry.afm" :value="entry.afm"> {{ entry.afm }} ({{
                                 entry.name }} {{ entry.surname }})</option>
@@ -106,7 +107,8 @@
                 <CRow v-if="omadiko == 1">
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Προσθήκη Πελατών Σε Ομαδικό</CFormLabel>
-                        <CFormInput type="text" floatingLabel="Αναζήτηση με  ΑΦΜ Πελάτη" placeholder="Αναζήτηση με  ΑΦΜ Πελάτη" v-model="searchQuery" />
+                        <CFormInput type="text" floatingLabel="Αναζήτηση με  ΑΦΜ Πελάτη"
+                            placeholder="Αναζήτηση με  ΑΦΜ Πελάτη" v-model="searchQuery" />
                         <!-- <CFormSelect size="lg" class="mb-6" v-model="teamcus" multiple :html-size="6">
                             <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{ entry.afm }} ({{
                                 entry.name }} {{ entry.surname }})</option>
@@ -120,7 +122,7 @@
                             <div class="selected-values" @click="toggleDropdown">
                                 <span v-if="teamcus.length === 0">Επιλογή Πελατών</span>
                                 <span v-else>
-                                    Επιλεγμένοι Πελάτες: {{ teamcus.map(item => item.afm).join(', ') }} 
+                                    Επιλεγμένοι Πελάτες: {{ teamcus.map(item => item.afm).join(', ') }}
                                 </span>
                             </div>
 
@@ -128,7 +130,7 @@
                                 <div v-for="entry in filteredItems" :key="entry.cid">
                                     <input type="checkbox" :value="entry" v-model="teamcus" id="color" />
                                     <label :for="entry.cid">{{ entry.afm }} ({{
-                                entry.name }} {{ entry.surname }})</label>
+                                        entry.name }} {{ entry.surname }})</label>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +139,7 @@
                         <h3>Επιλεγμένοι Πελάτες</h3>
                         <div class="selected">
                             <ul>
-                                <li  v-for="e in teamcus" :key="e.cid">{{ e.afm }} ({{ e.name }} {{e.surname}})</li>
+                                <li v-for="e in teamcus" :key="e.cid">{{ e.afm }} ({{ e.name }} {{ e.surname }})</li>
                             </ul>
                         </div>
                     </CCol>
@@ -246,7 +248,6 @@ export default {
                     .catch(err => { console.log(err), this.live2 = true })
 
                 this.connumber = ''
-                this.afmpelati = ''
                 this.startdate = ''
                 this.enddate = ''
                 this.clean = ''
@@ -273,8 +274,8 @@ export default {
         },
 
         toggleDropdown() {
-      this.dropdownVisible = !this.dropdownVisible;
-    },
+            this.dropdownVisible = !this.dropdownVisible;
+        },
 
         getInsuranes() {
             axios.get('/insurances')
@@ -322,27 +323,53 @@ export default {
         },
 
         getpaydate() {
-            var newDate = new Date(this.startdate);
+            var original = new Date(this.startdate);
+            var newDate = new Date(original);
+
+
 
             if (this.method == 1) {
-                newDate.setMonth(newDate.getMonth() + 1);
+                if (newDate < this.todayDate) {
+                    newDate.setMonth(this.todayDate.getMonth() + 1);
+                    newDate = new Date(newDate)
+                    const formattedNewDate = `${this.todayDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(original.getDate()).padStart(2, '0')}`;
+                    this.paydate = formattedNewDate
+                } else {
+                    newDate.setMonth(newDate.getMonth() + 1);
 
-                newDate = format(newDate, 'yyyy-MM-dd')
-                this.paydate = newDate
+                    newDate = format(newDate, 'yyyy-MM-dd')
+                    this.paydate = newDate
+                }
                 this.ispaid = 0
                 console.log(this.paydate)
             } else if (this.method == 2) {
-                newDate.setMonth(newDate.getMonth() + 3);
+                if (newDate < this.todayDate) {
+                    newDate.setMonth(this.todayDate.getMonth() + 3);
+                    newDate = new Date(newDate)
+                    const formattedNewDate = `${this.todayDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(original.getDate()).padStart(2, '0')}`;
+                    this.paydate = formattedNewDate
+                } else {
+                    newDate.setMonth(newDate.getMonth() + 1);
 
-                newDate = format(newDate, 'yyyy-MM-dd')
-                this.paydate = newDate
+                    newDate = format(newDate, 'yyyy-MM-dd')
+                    this.paydate = newDate
+                }
                 this.ispaid = 0
+                console.log(this.paydate)
             } else if (this.method == 3) {
-                newDate.setMonth(newDate.getMonth() + 6);
+                if (newDate < this.todayDate) {
+                    newDate.setMonth(this.todayDate.getMonth() + 6);
+                    newDate = new Date(newDate)
+                    const formattedNewDate = `${this.todayDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(original.getDate()).padStart(2, '0')}`;
+                    this.paydate = formattedNewDate
+                } else {
+                    newDate.setMonth(newDate.getMonth() + 1);
 
-                newDate = format(newDate, 'yyyy-MM-dd')
-                this.paydate = newDate
+                    newDate = format(newDate, 'yyyy-MM-dd')
+                    this.paydate = newDate
+                }
                 this.ispaid = 0
+                console.log(this.paydate)
             } else {
                 this.paydate = this.enddate
                 this.ispaid = 1
@@ -358,37 +385,37 @@ export default {
 
 <style scoped>
 .custom-select {
-  position: relative;
-  width: 100%;
-  margin-bottom: 5%;
+    position: relative;
+    width: 100%;
+    margin-bottom: 5%;
 }
 
 .selected-values {
-  cursor: pointer;
-  padding: 10px;
-  border: 1px solid #ccc;
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ccc;
 }
 
 .dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1;
 }
 
 .dropdown div {
-  padding: 5px;
-  display: flex;
-  align-items: center;
+    padding: 5px;
+    display: flex;
+    align-items: center;
 }
 
 .dropdown input {
-  margin-right: 5px;
+    margin-right: 5px;
 }
 
 .selected {

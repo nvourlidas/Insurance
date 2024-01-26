@@ -17,7 +17,7 @@
                     <CCol md>
                         <CFormLabel style="font-size: 20px; font-weight: bold;">ΑΦΜ Πελάτη</CFormLabel>
                         <CFormInput type="text" floatingLabel="ΑΦΜ Πελάτη" placeholder="ΑΦΜ Πελάτη" v-model="searchQuery" />
-                        <CFormSelect size="sm" class="mb-3" multiple v-model="cid" @click="changecon" :html-size="2"
+                        <CFormSelect size="sm" class="mb-3" multiple v-model="cid" @click="changecon" :html-size="5"
                             required>
                             <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{ entry.afm }} ({{
                                 entry.name }} {{ entry.surname }})
@@ -31,7 +31,7 @@
                         <CFormLabel style="font-size: 20px; font-weight: bold;">Αριθμός Συμβολαίου</CFormLabel>
                         <CFormInput type="text" floatingLabel="Αριθμός Συμβολαίου" placeholder="Αριθμός Συμβολαίου"
                             v-model="searchQuery2" />
-                        <CFormSelect size="sm" class="mb-3" multiple v-model="conid" :html-size="2" @click="getins"
+                        <CFormSelect size="sm" class="mb-3" multiple v-model="conid" :html-size="4" @click="getins"
                             required>
                             <option v-for="entry in filteredItems2" :key="entry.conid" :value="entry.conid"> {{
                                 entry.conumber }} ({{ entry.iname }} , {{ entry.bname }})</option>

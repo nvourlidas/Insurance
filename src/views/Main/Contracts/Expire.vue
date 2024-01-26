@@ -6,14 +6,14 @@
     </CInputGroup>
     <div class="top">
         <div>
-        <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
-            <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
-            Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
-        </CButton>
-        <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
-            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon> Excel
-        </CButton>
-    </div>
+            <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
+                <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
+                Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
+            </CButton>
+            <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
+                <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon> Excel
+            </CButton>
+        </div>
         <CButton color="info" variant="ghost" @click="this.$router.push('/AddContract')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilClipboard" size="xl"></CIcon> Νέο Συμβόλαιο
             </b> </CButton>
@@ -36,7 +36,7 @@
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell>{{ id + 1 }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{ id + 1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                 <CTableDataCell>
                     <div v-for="(e, id2) in table2" :item="e" :key="id2">
@@ -45,7 +45,7 @@
                 </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
-                <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
                         <CIcon :icon="icon.cilDescription" height="32"></CIcon>
@@ -60,7 +60,7 @@
                 <CTableDataCell>
                     <!-- <CFormSwitch v-if="entry.inform == 0" @click="inform(entry.conid,id)" id="formSwitchCheckDefault" size="xl"/>
                     <CFormSwitch v-if="entry.inform == 1" disabled id="formSwitchCheckDefault"/> -->
-                    <CButton v-if="entry.inform == 0" style="color: rgb(2, 2, 2);" @click="inform(entry.conid,id)">
+                    <CButton v-if="entry.inform == 0" style="color: rgb(2, 2, 2);" @click="inform(entry.conid, id)">
                         <CIcon :icon="icon.cilToggleOff" height="32"></CIcon>
                     </CButton>
                     <CButton v-if="entry.inform == 1" style="color: rgb(21, 161, 8); border: none;" disabled>
@@ -87,7 +87,8 @@
         <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
         </CPaginationItem>
     </CPagination>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies" :omadcus="omadcus">
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies"
+        :omadcus="omadcus">
     </ConModal>
     <reloadModal :visible="modal2" @close-modal="closeModalHandler" :con="con"></reloadModal>
 </template>
@@ -114,11 +115,12 @@ export default {
             cus: '',
             con: '',
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
             todayDate: new Date(),
             futureDate: null,
+            futureDate2: null,
             files: [],
             modal2: false,
             zimies: [],
@@ -129,8 +131,12 @@ export default {
     created() {
         axios.get('/contracts-customer').then(res => {
             this.futureDate = addDays(this.todayDate, 31);
+            this.futureDate2 = addDays(this.todayDate, 6);
             this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
+            this.futureDate2 = format(this.futureDate2, 'yyyy-MM-dd');
             this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
+
+
             var j = 0
             for (var i = 0; i < res.data.length; i++) {
                 var dateParts = res.data[i].enddate.split('-');
@@ -173,6 +179,31 @@ export default {
     },
 
     methods: {
+
+        checkdate(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
+        checkdate2(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate <= this.todayDate){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
         changePage(pageNumber) {
             this.currentPage = pageNumber;
             console.log([...this.table, ...this.table2])
@@ -194,18 +225,19 @@ export default {
                     data: { id: id }
                 }).then(this.table.splice(j, 1), this.live = true).catch(err => console.log(err, id))
             }
-        },
-
-        inform(id,t) {
-            var i =1
-            if (confirm('Είστε σίγουρος ότι έχει γίνει ενημέρωση;')) {
-                axios.patch(`/contracts/${id}`, {
-                   inform: i
-                }).then(this.table[t].inform = i)
-            }
             setTimeout(() => {
                 this.live = false;
             }, 3000);
+        },
+
+        inform(id, t) {
+            var i = 1
+            if (confirm('Είστε σίγουρος ότι έχει γίνει ενημέρωση;')) {
+                axios.patch(`/contracts/${id}`, {
+                    inform: i
+                }).then(this.table[t].inform = i)
+            }
+            
         },
 
         showModal(id) {
@@ -262,7 +294,11 @@ export default {
         },
 
         downloadExcel() {
-            const data = this.table;
+            if (this.searchQuery.length === 0) {
+                var data = this.table
+            } else {
+                data = this.paginatedData;
+            }
 
 
             const columnsToExport = [
@@ -321,14 +357,24 @@ export default {
     cursor: pointer;
 } */
 
-.excel:hover{
-    background-color: rgb(16,124,65);
+.excel:hover {
+    background-color: rgb(16, 124, 65);
     color: aliceblue;
 }
+
 .top {
     display: flex;
     justify-content: space-between;
     margin-bottom: 2%;
 
+}
+
+.red {
+    background-color: rgba(206, 16, 16, 0.699);
+    color: rgb(255, 255, 255);
+}
+
+.yellow {
+    background-color: rgba(245, 242, 32, 0.726);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <CModal fullscreen size="xl">
+    <CModal fullscreen size="xl" @close="onModalClose">
         <CModalHeader>
             <CModalTitle>
                 <h2>{{ con.conumber }}</h2>
@@ -118,16 +118,6 @@
                                 <CFormLabel style="margin-right: 5px; margin-left: 5px;">Χαρακτηριστικό</CFormLabel>
                                 <CFormInput type="text" :placeholder="table.pinakida" v-model="table.pinakida">
                                 </CFormInput>
-                            </div>
-                            <div class="edit">
-                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Εναρξης</CFormLabel>
-                                <VueDatePicker v-model="table.startdate" :placeholder="table.startdate" format="dd-MM-yyyy"
-                                    model-type="yyyy-MM-dd"></VueDatePicker>
-                            </div>{{ table.startdate }}
-                            <div class="edit">
-                                <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Λήξης</CFormLabel>
-                                <VueDatePicker v-model="table.enddate" :placeholder="table.enddate" format="dd-MM-yyyy"
-                                    model-type="yyyy-MM-dd"></VueDatePicker>
                             </div>
                             <div class="edit">
                                 <CFormLabel style="margin-right: 5px; margin-left: 5px;">Καθαρά</CFormLabel>
@@ -249,14 +239,15 @@
                         <CForm @submit.prevent="Add" v-if="vis2">
                             <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                                 <CCol md>
-                                    <CFormLabel style="margin-right: 5px; margin-left: 5px;">Αναζήτηση ΑΦΜ Πελάτη</CFormLabel>
-                                <CFormInput type="text" floatingLabel="Αναζήτηση ΑΦΜ Πελάτη" placeholder="Αναζήτηση ΑΦΜ Πελάτη"
-                                    v-model="searchQuery" />
-                                <CFormSelect size="sm" class="mb-3"  v-model="cuid" :html-size="2">
-                                    <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{
-                                        entry.afm }} ({{ entry.name }} {{ entry.surname }})
-                                    </option>
-                                </CFormSelect>                            
+                                    <CFormLabel style="margin-right: 5px; margin-left: 5px;">Αναζήτηση ΑΦΜ Πελάτη
+                                    </CFormLabel>
+                                    <CFormInput type="text" floatingLabel="Αναζήτηση ΑΦΜ Πελάτη"
+                                        placeholder="Αναζήτηση ΑΦΜ Πελάτη" v-model="searchQuery" />
+                                    <CFormSelect size="sm" class="mb-3" v-model="cuid" :html-size="2">
+                                        <option v-for="entry in filteredItems" :key="entry.cid" :value="entry.cid"> {{
+                                            entry.afm }} ({{ entry.name }} {{ entry.surname }})
+                                        </option>
+                                    </CFormSelect>
                                     <CButton type="submit" size="md" color="primary">
                                         <CIcon :icon="icon.cilSave" size="lg" /> Εισαγωγή Πελάτη
                                     </CButton>
@@ -320,10 +311,11 @@ import { CButton } from '@coreui/vue';
 //import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import axios from 'axios';
-import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+// import VueDatePicker from '@vuepic/vue-datepicker';
+// import '@vuepic/vue-datepicker/dist/main.css';
 //import { format } from 'date-fns';
-import moment from 'moment';
+
+//import moment from 'moment';
 
 export default {
     props: {
@@ -378,6 +370,7 @@ export default {
 
         },
     },
+
     methods: {
         color() {
             if (this.but1) {
@@ -403,7 +396,11 @@ export default {
             }
         },
 
-        Add(){
+        onModalClose() {
+            this.vis = false
+        },
+
+        Add() {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Εισαγωγή;')) {
                 axios.post('/omadika', {
                     coid: this.con.conid,
@@ -427,30 +424,22 @@ export default {
         remove(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει Αφαίρεση;')) {
                 axios.delete('/omadika', {
-                    data: { 
-                        cuid: id, 
-                        coid: this.con.conid }
+                    data: {
+                        cuid: id,
+                        coid: this.con.conid
+                    }
                 }).then(this.$emit('close')).catch(err => console.log(err, id))
             }
         },
 
         upd() {
             var id = this.con.conid
-            const dateString = this.table.startdate;
-            const formattedDate = moment(dateString, "DD-MM-YYYY").format("YYYY-MM-DD");
 
-            const dateString2 = this.table.enddate;
-            const formattedDate2 = moment(dateString2, "DD-MM-YYYY").format("YYYY-MM-DD");
-
-            this.table.startdate = formattedDate;
-            this.table.enddate = formattedDate2;
             axios.patch(`/contracts/${id}`, {
                 conumber: this.table.conumber,
                 custid: this.table.custid,
                 insuranceid: this.table.insuranceid,
                 branchid: this.table.branchid,
-                startdate: this.table.startdate,
-                enddate: this.table.enddate,
                 clear: this.table.clear,
                 mikta: this.table.mikta,
                 promithia: this.table.promithia,
@@ -486,7 +475,7 @@ export default {
                 });
         }
     },
-    components: { CButton, VueDatePicker }
+    components: { CButton }
 }
 </script>
 

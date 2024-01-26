@@ -29,7 +29,7 @@
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell>{{ id + 1 }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.paydate), 'yellow': checkdate(entry.paydate) }">{{ id + 1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                 <CTableDataCell>
                     <div v-for="(e, id2) in table2" :item="e" :key="id2">
@@ -38,7 +38,7 @@
                 </CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
-                <CTableDataCell>{{ entry.paydate }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.paydate), 'yellow': checkdate(entry.paydate) }">{{ entry.paydate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
                         <CIcon :icon="icon.cilDescription" height="32"></CIcon>
@@ -99,11 +99,12 @@ export default {
             cus: '',
             con: '',
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
             todayDate: new Date(),
             futureDate: null,
+            futureDate2: null,
             files: [],
             zimies: [],
             omadcus: [],
@@ -112,7 +113,9 @@ export default {
     created() {
         axios.get('/contracts-customer').then(res => {
             this.futureDate = addDays(this.todayDate, 31);
+            this.futureDate2 = addDays(this.todayDate, 6);
             this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
+            this.futureDate2 = format(this.futureDate2, 'yyyy-MM-dd');
             this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
 
             var j = 0
@@ -165,6 +168,30 @@ export default {
     },
 
     methods: {
+
+        checkdate(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
+        checkdate2(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate <= this.todayDate){
+                return true
+            }else {
+                return false
+            }
+
+        },
         changePage(pageNumber) {
             this.currentPage = pageNumber;
             console.log([...this.table, ...this.table2])
@@ -351,6 +378,15 @@ export default {
     border-radius: 0.3rem;
     cursor: pointer;
 } */
+
+.red {
+    background-color: rgba(206, 16, 16, 0.699);
+    color: rgb(255, 255, 255);
+}
+
+.yellow {
+    background-color: rgba(245, 242, 32, 0.726);
+}
 
 .top {
     display: flex;

@@ -60,7 +60,7 @@ export default {
             live: false,
             live2: false,
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
         }
     },

@@ -104,7 +104,7 @@ export default {
             cus: '',
             con: '',
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: 0,
             files: [],
@@ -149,6 +149,32 @@ export default {
 
 
     methods: {
+
+
+        checkdate(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
+        checkdate2(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+            if(formattedDate <= this.todayDate){
+                return true
+            }else {
+                return false
+            }
+
+        },
+
         changePage(pageNumber) {
             this.currentPage = pageNumber;
             console.log([...this.table, ...this.table2])
@@ -228,7 +254,11 @@ export default {
         },
 
         downloadExcel() {
-            const data = this.paginatedData;
+            if (this.searchQuery.length === 0){
+                var data = this.table
+            }else{
+                 data = this.paginatedData;
+            }
 
             
             const columnsToExport = [
@@ -291,6 +321,14 @@ label {
     color: aliceblue;
 }
 
+.red {
+    background-color: rgba(206, 16, 16, 0.699);
+    color: rgb(255, 255, 255);
+}
+
+.yellow {
+    background-color: rgba(245, 242, 32, 0.726);
+}
 .top {
     display: flex;
     justify-content: space-between;

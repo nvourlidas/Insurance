@@ -1,5 +1,5 @@
 <template>
-    <CModal fullscreen size="xl">
+    <CModal fullscreen size="xl" @close="onModalClose">
         <CModalHeader>
             <CModalTitle>
                 <h2>{{ cus.name }} {{ cus.surname }}</h2>
@@ -90,12 +90,6 @@
                         <div class="edit">
                             <CFormLabel style="margin-right: 5px; margin-left: 5px;">Σταθερό</CFormLabel>
                             <CFormInput type="text" :placeholder="table.phone" v-model="table.phone"></CFormInput>
-                        </div>
-                        <div class="edit">
-                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Γέννησης</CFormLabel>
-                            <VueDatePicker v-model="table.birthday" :placeholder="table.birthday" format="dd-MM-yyyy"
-                                model-type="yyyy-MM-dd"></VueDatePicker>
-
                         </div>
                         <div class="edit">
                             <CFormLabel style="margin-right: 5px; margin-left: 5px;">Τ.Κ.</CFormLabel>
@@ -264,10 +258,10 @@ import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import OffCanvas from './OffCanvas.vue';
 import axios from 'axios';
-import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
-//import { format } from 'date-fns';
-import moment from 'moment';
+// import VueDatePicker from '@vuepic/vue-datepicker';
+// import '@vuepic/vue-datepicker/dist/main.css';
+// //import { format } from 'date-fns';
+// import moment from 'moment';
 
 export default {
     props: {
@@ -333,6 +327,11 @@ export default {
             }
         },
 
+        onModalClose(){
+            this.vis = false
+        },
+
+
         getconbody(id) {
             axios.get('/contracts-customer').then(res => {
                 for (var i = 0; i < res.data.length; i++) {
@@ -377,10 +376,6 @@ export default {
 
         upd() {
             var id = this.cus.cid
-            const dateString = this.table.birthday;
-            const formattedDate = moment(dateString, "DD-MM-YYYY").format("YYYY-MM-DD");
-
-            this.table.birthday = formattedDate;
 
 
             axios.patch(`/customer/${id}`, {
@@ -389,7 +384,6 @@ export default {
                 surname: this.table.surname,
                 email: this.table.email,
                 cellphone: this.table.cellphone,
-                birthday: this.table.birthday,
                 phone: this.table.phone,
                 postcode: this.table.postcode,
                 property: this.table.property
@@ -421,7 +415,7 @@ export default {
                 });
         }
     },
-    components: { CButton, CIcon, OffCanvas, CRow, VueDatePicker }
+    components: { CButton, CIcon, OffCanvas, CRow }
 }
 </script>
 

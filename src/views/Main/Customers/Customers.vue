@@ -93,7 +93,7 @@ export default {
             con: [],
             files: [],
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
             file: null,
@@ -239,7 +239,11 @@ export default {
         },
 
         downloadExcel() {
-            const data = this.table;
+            if (this.searchQuery.length === 0){
+                var data = this.table
+            }else{
+                 data = this.paginatedData;
+            }
 
             
             const columnsToExport = [
