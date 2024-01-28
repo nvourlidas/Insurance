@@ -376,5 +376,6 @@ export default {
 
 .yellow {
     background-color: rgba(245, 242, 32, 0.726);
+    color: black;
 }
 </style>

@@ -226,6 +226,7 @@ export default {
         Add() {
             this.getpaydate()
             console.log(this.paydate)
+            if(this.omadiko == 2){this.teamcus = []}
             if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Αποστολή;")) {
                 axios.post('/contracts', {
                     afm: this.afmpelati,
