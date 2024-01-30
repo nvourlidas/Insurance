@@ -52,7 +52,7 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid, id)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -160,11 +160,15 @@ export default {
             }
         },
 
-        deletecus(id, j) {
+        deletecus(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete('/customer', {
                     data: { id: id }
-                }).then(this.table.splice(j, 1), this.live = true).catch(err => console.log(err, id))
+                }).then(this.live = true).catch(err => console.log(err, id))
+
+                const indexToRemove = this.table.findIndex(item => item.cid === id)
+                    this.table.splice(indexToRemove, 1)
+                
             }
             setTimeout(() => {
                 this.live = false;

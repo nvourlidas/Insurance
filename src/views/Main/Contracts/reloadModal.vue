@@ -50,6 +50,12 @@
                             </CInputGroup>
                         </CCol>
                     </CRow>
+                    <CFormInput type="file" id="upload" @change="handleFileChange" hidden />
+                <label for="upload"
+                    style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Επιιλογή
+                        αρχείου Συμβολαίου </b>
+                    <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
+                </label>
             </CModalBody>
             <CModalFooter>
                 <CButton type="submit" color="primary">Ανανέωση</CButton>
@@ -63,6 +69,8 @@
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { format } from 'date-fns';
+import { CIcon } from '@coreui/icons-vue';
+import * as icon from '@coreui/icons';
 
 export default {
     props: {
@@ -78,7 +86,14 @@ export default {
             method: 4,
             paydate: '',
             ispaid: '',
+            cfile: '',
             todayDate: new Date(),
+        }
+    },
+
+    setup() {
+        return {
+            icon,
         }
     },
 
@@ -97,6 +112,31 @@ export default {
                     mikta: this.mikta,
                     promithia: this.prom
                 }).then(this.$emit('reload', id))
+                this.upload(id)
+            }
+        },
+
+        handleFileChange(event) {
+            this.cfile = event.target.files[0];
+        },
+
+        upload(id) {
+            if (this.cfile) {
+                const formData = new FormData();
+                const blob = new Blob([this.cfile], { type: 'application/octet-stream;charset=utf-8' });
+                formData.append('file', blob, this.cfile.name);
+                formData.append('filename', this.cfile.name);
+                formData.append('cuid', 0);
+                formData.append('coid', id);
+                formData.append('zimid', 0);
+
+                axios.post('/upload', formData)
+                    .then(response => {
+                        console.log(response.data, formData);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
             }
         },
 
@@ -157,6 +197,6 @@ export default {
 
         },
     },
-    components: {VueDatePicker },
+    components: {VueDatePicker, CIcon },
 }
 </script>

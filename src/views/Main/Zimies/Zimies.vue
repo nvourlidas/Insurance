@@ -59,7 +59,7 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletezim(entry.zid, id)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletezim(entry.zid)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -161,9 +161,11 @@ export default {
             }
         },
 
-        deletezim(id, j) {
+        deletezim(id) {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete(`/zimies/${id}`).then(this.table.splice(j,1), this.live = true).catch(err => console.log(err, id))
+                axios.delete(`/zimies/${id}`).then(this.live = true).catch(err => console.log(err, id))
+                const indexToRemove = this.table.findIndex(item => item.zid === id)
+                    this.table.splice(indexToRemove, 1)
             }
         },
         showModal(id) {

@@ -238,7 +238,7 @@ export default {
             if (confirm('Είστε σίγουρος ότι έχει γίνει ενημέρωση;')) {
                 axios.patch(`/contracts/${id}`, {
                    inform: i
-                }).then(this.table[t].inform = i)
+                }).then(this.paginatedData[t].inform = i)
             }
         },
 

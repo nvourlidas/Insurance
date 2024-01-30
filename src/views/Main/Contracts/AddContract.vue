@@ -146,7 +146,7 @@
                 </CRow>
                 <CFormInput type="file" id="upload" @change="handleFileChange" hidden />
                 <label for="upload"
-                    style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Ανέβασμα
+                    style="margin: 1%; border: 1px solid; padding: 20px; border-radius: 30px; cursor: pointer;"><b> Επιιλογή
                         αρχείου Συμβολαίου </b>
                     <CIcon :icon="icon.cilCloudUpload" height="32"></CIcon>
                 </label>
