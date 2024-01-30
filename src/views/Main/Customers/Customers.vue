@@ -6,14 +6,14 @@
     </CInputGroup>
     <div class="top">
         <div>
-        <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
-            <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
-            Σύνολο Πελατών: <b>{{ sunolo }}</b>
-        </CButton>
-        <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
-            <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon>Excel
-        </CButton>
-    </div>
+            <CButton color="primary" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
+                <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
+                Σύνολο Πελατών: <b>{{ sunolo }}</b>
+            </CButton>
+            <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
+                <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon>Excel
+            </CButton>
+        </div>
         <CButton color="success" variant="ghost" @click="this.$router.push('/AddCustomer')" style=" height: 55px;"><b>
                 <CIcon :icon="icon.cilUserPlus" size="xl"></CIcon> Νέος Πελάτης
             </b> </CButton>
@@ -35,7 +35,7 @@
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell>{{ id+1 }}</CTableDataCell>
+                <CTableDataCell>{{ id + 1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.name }} {{ entry.surname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.afm }}</CTableDataCell>
                 <CTableDataCell>{{ entry.cellphone }}</CTableDataCell>
@@ -52,7 +52,7 @@
                     </label>
                 </CTableDataCell>
                 <CTableDataCell>
-                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid,id)">
+                    <CButton style="color: rgb(165, 49, 45);" @click="deletecus(entry.cid, id)">
                         <CIcon :icon="icon.cilXCircle" height="32"></CIcon>
                     </CButton>
                 </CTableDataCell>
@@ -62,16 +62,33 @@
             </CTableRow>
         </CTableBody>
     </CTable>
-    <CPagination size="lg" align="center" aria-label="Page navigation example">
-        <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo; Προηγούμενη
-        </CPaginationItem>
-        <CPaginationItem style="cursor: pointer;" v-for="pageNumber in totalPages" :key="pageNumber"
-            :class="{ active: pageNumber === currentPage }" @click="changePage(pageNumber)">{{ pageNumber }}
-        </CPaginationItem>
-        <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
-        </CPaginationItem>
-    </CPagination>
-    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies" :omad="omad"></CusModal>
+    <CRow>
+        <CCol md style="display: flex;">
+            <CFormLabel style="font-size: 15px;">Εγγραφές Ανά Σελίδα</CFormLabel>
+            <CFormSelect size="sm" class="mb-2" style="width: 10%; height: 40px;" v-model="itemsPerPage">
+                <option value="20">20</option>
+                <option value="10">10</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+            </CFormSelect>
+        </CCol>
+        <CCol md>
+            <CPagination size="lg" align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo;
+                    Προηγούμενη
+                </CPaginationItem>
+                <CPaginationItem style="cursor: pointer;" v-for="pageNumber in totalPages" :key="pageNumber"
+                    :class="{ active: pageNumber === currentPage }" @click="changePage(pageNumber)">{{ pageNumber }}
+                </CPaginationItem>
+                <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη
+                    &raquo;
+                </CPaginationItem>
+            </CPagination>
+        </CCol>
+    </CRow>
+    <CusModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :zimies="zimies" :omad="omad">
+    </CusModal>
 </template>
 
 <script>
@@ -147,7 +164,7 @@ export default {
             if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
                 axios.delete('/customer', {
                     data: { id: id }
-                }).then(this.table.splice(j,1),this.live = true).catch(err => console.log(err, id))
+                }).then(this.table.splice(j, 1), this.live = true).catch(err => console.log(err, id))
             }
             setTimeout(() => {
                 this.live = false;
@@ -183,10 +200,10 @@ export default {
             })
 
             axios.get('/zimies').then(res => {
-                var t =0
+                var t = 0
                 this.zimies = []
-                for(var i=0; i<res.data.length; i++){
-                    if(res.data[i].customerid == id){
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].customerid == id) {
                         this.zimies[t] = res.data[i]
                         t++
                     }
@@ -194,15 +211,15 @@ export default {
             })
 
             axios.get(`/omadika`).then(res => {
-                var k=0
-                this.omad =[]
-                for(var i=0; i<res.data.length; i++){
-                    if(res.data[i].cuid == id){
+                var k = 0
+                this.omad = []
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].cuid == id) {
                         this.omad[k] = res.data[i]
                         k++
                     }
                 }
-                
+
             })
         },
 
@@ -233,19 +250,19 @@ export default {
                 .catch(error => {
                     console.error(error);
                 });
-                setTimeout(() => {
+            setTimeout(() => {
                 this.live2 = false;
             }, 3000);
         },
 
         downloadExcel() {
-            if (this.searchQuery.length === 0){
+            if (this.searchQuery.length === 0) {
                 var data = this.table
-            }else{
-                 data = this.paginatedData;
+            } else {
+                data = this.paginatedData;
             }
 
-            
+
             const columnsToExport = [
                 { header: 'Όνομα', key: 'name' },
                 { header: 'Επίθετο', key: 'surname' },
@@ -277,6 +294,10 @@ export default {
             XLSX.writeFile(wb, 'Πελάτες.xlsx');
         },
 
+        print() {
+            window.print()
+        }
+
     },
 
     components: { CTableBody, CButton, CIcon, CusModal },
@@ -299,8 +320,8 @@ label {
     cursor: pointer;
 }
 
-.excel:hover{
-    background-color: rgb(16,124,65);
+.excel:hover {
+    background-color: rgb(16, 124, 65);
     color: aliceblue;
 }
 
@@ -310,5 +331,4 @@ label {
     justify-content: space-between;
     margin-bottom: 2%;
 
-}
-</style>
+}</style>

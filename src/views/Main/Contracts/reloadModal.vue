@@ -2,7 +2,7 @@
     <CModal alignment="center" >
         <CForm @submit.prevent="reload">
             <CModalHeader>
-                <CModalTitle>{{ con.conumber }}</CModalTitle>
+                <CModalTitle>Αριθμός Συμβολαίου: {{ con.conumber }}</CModalTitle>
             </CModalHeader>
             <CModalBody>
 
@@ -26,6 +26,30 @@
                             <option value="3">6μηνη</option>
                         </CFormSelect>
                     </CCol>
+                    <CRow :xs="{ gutter: 2 }" style="text-align: center;">
+                        <CCol md>
+                            <CFormLabel style="font-size: 20px; font-weight: bold;">Καθαρά</CFormLabel>
+                            <CInputGroup class="mb-3">
+                                <CInputGroupText>€</CInputGroupText>
+                                <CFormInput type="text" placeholder="0.00" v-model="clean" />
+                            </CInputGroup>
+
+                        </CCol>
+                        <CCol md>
+                            <CFormLabel style="font-size: 20px; font-weight: bold;">Μεικτά</CFormLabel>
+                            <CInputGroup class="mb-3">
+                                <CInputGroupText>€</CInputGroupText>
+                                <CFormInput type="text" placeholder="0.00" v-model="mikta" />
+                            </CInputGroup>
+                        </CCol>
+                        <CCol md>
+                            <CFormLabel style="font-size: 20px; font-weight: bold;">Προμήθεια</CFormLabel>
+                            <CInputGroup class="mb-3">
+                                <CInputGroupText>€</CInputGroupText>
+                                <CFormInput type="text" placeholder="0.00" v-model="prom" />
+                            </CInputGroup>
+                        </CCol>
+                    </CRow>
             </CModalBody>
             <CModalFooter>
                 <CButton type="submit" color="primary">Ανανέωση</CButton>
@@ -48,6 +72,9 @@ export default {
         return {
             startdate: '',
             enddate: '',
+            clean: '',
+            mikta: '',
+            prom: '',
             method: 4,
             paydate: '',
             ispaid: '',
@@ -65,8 +92,11 @@ export default {
                     enddate: this.enddate,
                     paymentmethod: this.method,
                     paydate: this.paydate,
-                    ispaid: this.ispaid
-                }).then(this.$emit('close-modal', id))
+                    ispaid: this.ispaid,
+                    clear: this.clean,
+                    mikta: this.mikta,
+                    promithia: this.prom
+                }).then(this.$emit('reload', id))
             }
         },
 

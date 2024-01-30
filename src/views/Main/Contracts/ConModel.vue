@@ -2,7 +2,7 @@
     <CModal fullscreen size="xl" @close="onModalClose">
         <CModalHeader>
             <CModalTitle>
-                <h2>{{ con.conumber }}</h2>
+                <h2>Αριθμός Συμβολαίου: {{ con.conumber }}</h2>
             </CModalTitle>
         </CModalHeader>
         <CModalBody>

@@ -25,6 +25,7 @@
                 <CTableHeaderCell scope="col">#</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
@@ -43,6 +44,7 @@
                         <p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p>
                     </div>
                 </CTableDataCell>
+                <CTableDataCell>{{ entry.email }}</CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
                 <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{ entry.enddate }}</CTableDataCell>
@@ -78,19 +80,35 @@
             </CTableRow>
         </CTableBody>
     </CTable>
-    <CPagination size="lg" align="center" aria-label="Page navigation example">
-        <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo; Προηγούμενη
-        </CPaginationItem>
-        <CPaginationItem style="cursor: pointer;" v-for="pageNumber in totalPages" :key="pageNumber"
-            :class="{ active: pageNumber === currentPage }" @click="changePage(pageNumber)">{{ pageNumber }}
-        </CPaginationItem>
-        <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
-        </CPaginationItem>
-    </CPagination>
+    <CRow>
+        <CCol md style="display: flex;">
+            <CFormLabel style="font-size: 15px;">Εγγραφές Ανά Σελίδα</CFormLabel>
+            <CFormSelect size="sm" class="mb-2" style="width: 10%; height: 40px;" v-model="itemsPerPage">
+                <option value="20">20</option>
+                <option value="10">10</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+            </CFormSelect>
+        </CCol>
+        <CCol md>
+            <CPagination size="lg" align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo;
+                    Προηγούμενη
+                </CPaginationItem>
+                <CPaginationItem style="cursor: pointer;" v-for="pageNumber in totalPages" :key="pageNumber"
+                    :class="{ active: pageNumber === currentPage }" @click="changePage(pageNumber)">{{ pageNumber }}
+                </CPaginationItem>
+                <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη
+                    &raquo;
+                </CPaginationItem>
+            </CPagination>
+        </CCol>
+    </CRow>
     <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies"
         :omadcus="omadcus">
     </ConModal>
-    <reloadModal :visible="modal2" @close-modal="closeModalHandler" :con="con"></reloadModal>
+    <reloadModal :visible="modal2" @close="modal2 = false" @reload="closeModalHandler" :con="con"></reloadModal>
 </template>
 <script>
 import { CButton, CTableBody } from '@coreui/vue';
@@ -153,7 +171,6 @@ export default {
             this.sunolo = this.table.length
         });
         axios.get('/customer').then(res => { this.table2 = res.data })
-
     },
 
 
@@ -286,11 +303,12 @@ export default {
                     this.con = this.table[i]
                 }
             }
+            console.log(this.modal2)
         },
 
         closeModalHandler(id) {
-            this.modal2 = false;
-            this.table.splice(1, id)
+            this.modal2 = false
+            this.table.splice(id, 1)
         },
 
         downloadExcel() {
@@ -347,15 +365,15 @@ export default {
 </script>
 
 <style scoped>
-/* label {
+label {
     display: inline-block;
     background-color: none;
-    color: rgb(41, 177, 64);
+    /* color: rgb(41, 177, 64); */
     padding: 0.5rem;
     font-family: sans-serif;
     border-radius: 0.3rem;
     cursor: pointer;
-} */
+}
 
 .excel:hover {
     background-color: rgb(16, 124, 65);

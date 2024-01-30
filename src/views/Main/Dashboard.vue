@@ -140,7 +140,7 @@ export default {
 
           if (dat2 <= this.futureDate && res.data[i].ispaid == 0 && res.data[i].paymentmethod != 4) {
             if (dat <= this.futureDate) {
-              console.log(dat2)
+              console.log(dat)
             } else {
               t += 1
             }

@@ -36,17 +36,36 @@
                     </CButton>
                 </CTableDataCell>
             </CTableRow>
+            <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
+                <CTableDataCell colspan="8">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+            </CTableRow>
         </CTableBody>
     </CTable>
-    <CPagination size="lg" align="center" aria-label="Page navigation example">
-        <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo; Προηγούμενη
-        </CPaginationItem>
-        <CPaginationItem style="cursor: pointer;" v-for="pageNumber in totalPages" :key="pageNumber"
-            :class="{ active: pageNumber === currentPage }" @click="changePage(pageNumber)">{{ pageNumber }}
-        </CPaginationItem>
-        <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη &raquo;
-        </CPaginationItem>
-    </CPagination>
+    <CRow>
+        <CCol md style="display: flex;">
+            <CFormLabel style="font-size: 15px;">Εγγραφές Ανά Σελίδα</CFormLabel>
+            <CFormSelect size="sm" class="mb-2" style="width: 10%; height: 40px;" v-model="itemsPerPage">
+                <option value="20">20</option>
+                <option value="10">10</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+            </CFormSelect>
+        </CCol>
+        <CCol md>
+            <CPagination size="lg" align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="prevPage" :disabled="currentPage === 1" style="cursor: pointer;">&laquo;
+                    Προηγούμενη
+                </CPaginationItem>
+                <CPaginationItem style="cursor: pointer;" v-for="pageNumber in totalPages" :key="pageNumber"
+                    :class="{ active: pageNumber === currentPage }" @click="changePage(pageNumber)">{{ pageNumber }}
+                </CPaginationItem>
+                <CPaginationItem style="cursor: pointer;" @click="nextPage" :disabled="currentPage === totalPages">Επόμενη
+                    &raquo;
+                </CPaginationItem>
+            </CPagination>
+        </CCol>
+    </CRow>
 </template>
 
 <script>
@@ -195,6 +214,17 @@ export default {
 </script>
 
 <style scoped>
+
+label {
+    display: inline-block;
+    background-color: none;
+    /* color: rgb(41, 177, 64); */
+    padding: 0.5rem;
+    font-family: sans-serif;
+    border-radius: 0.3rem;
+    cursor: pointer;
+}
+
 .uplaod {
     padding: 10px;
     border: none;
