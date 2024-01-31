@@ -166,31 +166,6 @@ export default {
 
     methods: {
 
-
-        checkdate(date) {
-            const parts = date.split("-"); // Split the string into day, month, and year parts
-            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
-
-            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
-                return true
-            }else {
-                return false
-            }
-
-        },
-
-        checkdate2(date) {
-            const parts = date.split("-"); // Split the string into day, month, and year parts
-            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
-
-            if(formattedDate <= this.todayDate){
-                return true
-            }else {
-                return false
-            }
-
-        },
-
         changePage(pageNumber) {
             this.currentPage = pageNumber;
             console.log([...this.table, ...this.table2])

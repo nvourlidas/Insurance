@@ -165,16 +165,24 @@ export default {
 
 
     computed: {
+        sortedArray() {
+            return this.table.slice().sort((a, b) => {
+                const dateA = this.parseDate(a.paydate);
+                const dateB = this.parseDate(b.paydate);
+                return dateA - dateB;
+            });
+        },
+
         totalPages() {
-            return Math.ceil(this.table.length / this.itemsPerPage);
+            return Math.ceil(this.sortedArray.length / this.itemsPerPage);
         },
         paginatedData() {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = start + this.itemsPerPage;
             if (this.searchQuery.length === 0) {
-                return this.table.slice(start, end);
+                return this.sortedArray.slice(start, end);
             } else {
-                return this.table.filter(item =>
+                return this.sortedArray.filter(item =>
                     Object.values(item)
                         .join(' ')
                         .toLowerCase()
@@ -185,6 +193,10 @@ export default {
     },
 
     methods: {
+        parseDate(dateString) {
+            const [day, month, year] = dateString.split('-');
+            return new Date(`${year}-${month}-${day}`);
+        },
 
         checkdate(date) {
             const parts = date.split("-"); // Split the string into day, month, and year parts

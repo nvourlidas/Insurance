@@ -143,16 +143,23 @@ export default {
 
 
     computed: {
+        sortedArray() {
+            return this.table.slice().sort((a, b) => {
+                const dateA = this.parseDate(a.enddate);
+                const dateB = this.parseDate(b.enddate);
+                return dateA - dateB;
+            });
+        },
         totalPages() {
-            return Math.ceil(this.table.length / this.itemsPerPage);
+            return Math.ceil(this.sortedArray.length / this.itemsPerPage);
         },
         paginatedData() {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = start + this.itemsPerPage;
             if (this.searchQuery.length === 0) {
-                return this.table.slice(start, end);
+                return this.sortedArray.slice(start, end);
             } else {
-                return this.table.filter(item =>
+                return this.sortedArray.filter(item =>
                     Object.values(item)
                         .join(' ')
                         .toLowerCase()
@@ -163,30 +170,10 @@ export default {
     },
 
     methods: {
-        checkdate(date) {
-            const parts = date.split("-"); // Split the string into day, month, and year parts
-            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
-
-            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
-                return true
-            }else {
-                return false
-            }
-
+        parseDate(dateString) {
+            const [day, month, year] = dateString.split('-');
+            return new Date(`${year}-${month}-${day}`);
         },
-
-        checkdate2(date) {
-            const parts = date.split("-"); // Split the string into day, month, and year parts
-            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
-
-            if(formattedDate <= this.todayDate){
-                return true
-            }else {
-                return false
-            }
-
-        },
-
         changePage(pageNumber) {
             this.currentPage = pageNumber;
             console.log([...this.table, ...this.table2])

@@ -37,7 +37,8 @@
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{ id + 1 }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{ id + 1
+                }}</CTableDataCell>
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                 <CTableDataCell>
                     <div v-for="(e, id2) in table2" :item="e" :key="id2">
@@ -47,7 +48,8 @@
                 <CTableDataCell>{{ entry.email }}</CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
-                <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{ entry.enddate }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.enddate), 'yellow': checkdate(entry.enddate) }">{{
+                    entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
                         <CIcon :icon="icon.cilDescription" height="32"></CIcon>
@@ -76,7 +78,7 @@
                 </CTableDataCell>
             </CTableRow>
             <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
-                <CTableDataCell colspan="8">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
+                <CTableDataCell colspan="11">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
             </CTableRow>
         </CTableBody>
     </CTable>
@@ -176,16 +178,24 @@ export default {
 
 
     computed: {
+        sortedArray() {
+            return this.table.slice().sort((a, b) => {
+                const dateA = this.parseDate(a.enddate);
+                const dateB = this.parseDate(b.enddate);
+                return dateA - dateB;
+            });
+        },
+
         totalPages() {
-            return Math.ceil(this.table.length / this.itemsPerPage);
+            return Math.ceil(this.sortedArray.length / this.itemsPerPage);
         },
         paginatedData() {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = start + this.itemsPerPage;
             if (this.searchQuery.length === 0) {
-                return this.table.slice(start, end);
+                return this.sortedArray.slice(start, end);
             } else {
-                return this.table.filter(item =>
+                return this.sortedArray.filter(item =>
                     Object.values(item)
                         .join(' ')
                         .toLowerCase()
@@ -196,173 +206,177 @@ export default {
     },
 
     methods: {
-
-        checkdate(date) {
-            const parts = date.split("-"); // Split the string into day, month, and year parts
-            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
-
-            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
-                return true
-            }else {
-                return false
-            }
-
+        parseDate(dateString) {
+            const [day, month, year] = dateString.split('-');
+            return new Date(`${year}-${month}-${day}`);
         },
 
-        checkdate2(date) {
-            const parts = date.split("-"); // Split the string into day, month, and year parts
-            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+    checkdate(date) {
+        const parts = date.split("-"); // Split the string into day, month, and year parts
+        const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
 
-            if(formattedDate <= this.todayDate){
-                return true
-            }else {
-                return false
-            }
-
-        },
-
-        changePage(pageNumber) {
-            this.currentPage = pageNumber;
-            console.log([...this.table, ...this.table2])
-        },
-        prevPage() {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-            }
-        },
-        nextPage() {
-            if (this.currentPage < this.totalPages) {
-                this.currentPage++;
-            }
-        },
-
-        deletecon(id) {
-            if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
-                axios.delete('/contracts', {
-                    data: { id: id }
-                }).then(this.live = true).catch(err => console.log(err, id))
-                const indexToRemove = this.table.findIndex(item => item.conid === id)
-                    this.table.splice(indexToRemove, 1)
-            }
-            setTimeout(() => {
-                this.live = false;
-            }, 3000);
-        },
-
-        inform(id, t) {
-            var i = 1
-            if (confirm('Είστε σίγουρος ότι έχει γίνει ενημέρωση;')) {
-                axios.patch(`/contracts/${id}`, {
-                    inform: i
-                }).then(this.paginatedData[t].inform = i)
-            }
-            
-        },
-
-        showModal(id) {
-            this.xlDemo = true;
-            for (var i = 0; i < this.table.length; i++) {
-                if (id == this.table[i].conid) {
-                    this.con = this.table[i]
-                }
-            }
-            for (i = 0; i < this.table2.length; i++) {
-                if (this.con.custid == this.table2[i].cid) {
-                    this.cus = this.table2[i]
-                }
-            }
-            axios.get('/files').then(res => {
-                var c = 0
-                this.files = []
-                for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].coid == id) {
-                        this.files[c] = res.data[i]
-                        c++
-                    }
-                }
-            })
-
-            axios.get('/zimies').then(res => {
-                var t = 0
-                this.zimies = []
-                for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].contractid == id) {
-                        this.zimies[t] = res.data[i]
-                        t++
-                    }
-                }
-            })
-
-            axios.get(`/omadika/${id}`).then(res => {
-                this.omadcus = res.data
-            })
-        },
-
-        showModal2(id) {
-            this.modal2 = true
-            for (var i = 0; i < this.table.length; i++) {
-                if (id == this.table[i].conid) {
-                    this.con = this.table[i]
-                }
-            }
-            console.log(this.modal2)
-        },
-
-        closeModalHandler(id) {
-            this.modal2 = false
-            this.table.splice(id, 1)
-        },
-
-        downloadExcel() {
-            if (this.searchQuery.length === 0) {
-                var data = this.table
-            } else {
-                data = this.paginatedData;
-            }
-
-
-            const columnsToExport = [
-                { header: 'Αριθμός Συμβολαίου', key: 'conumber' },
-                { header: 'Όνομα Πελάτη', key: 'name' },
-                { header: 'Επίθετο Πελάτη', key: 'surname' },
-                { header: 'Ασφαλιστική', key: 'iname' },
-                { header: 'Κλάδος', key: 'bname' },
-                { header: 'Χαρακτηριστικό', key: 'pinakida' },
-                { header: 'Ημερομηνία Εναρξης', key: 'startdate' },
-                { header: 'Ημερομηνία Λήξης', key: 'enddate' },
-                { header: 'Καθαρά', key: 'clear' },
-                { header: 'Μεικτά', key: 'mikta' },
-                { header: 'Προμήθεια', key: 'promithia' },
-            ];
-
-            // Extract only the selected columns from the data
-            const filteredData = data.map(item => {
-                const filteredItem = {};
-                columnsToExport.forEach(column => {
-                    filteredItem[column.header] = item[column.key];
-                });
-                return filteredItem;
-            });
-
-            // Create a worksheet with custom columns and headers
-            const ws = XLSX.utils.json_to_sheet(filteredData, { header: columnsToExport.map(column => column.header) });
-
-            // Create a new workbook and append the worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-            // Save the workbook as an Excel file
-            XLSX.writeFile(wb, 'Συμβόλαια-Λήξη.xlsx');
-
-        },
+        if (formattedDate >= this.todayDate && formattedDate <= this.futureDate2) {
+            return true
+        } else {
+            return false
+        }
 
     },
-    components: { CTableBody, CButton, CIcon, ConModal, reloadModal },
-    setup() {
-        return {
-            icon,
+
+    checkdate2(date) {
+        const parts = date.split("-"); // Split the string into day, month, and year parts
+        const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
+
+        if (formattedDate <= this.todayDate) {
+            return true
+        } else {
+            return false
+        }
+
+    },
+
+    changePage(pageNumber) {
+        this.currentPage = pageNumber;
+        console.log([...this.table, ...this.table2])
+    },
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
         }
     },
+    nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.currentPage++;
+        }
+    },
+
+    deletecon(id) {
+        if (confirm('Είστε σίγουρος ότι θέλετε να γίνει διαγραφή;')) {
+            axios.delete('/contracts', {
+                data: { id: id }
+            }).then(this.live = true).catch(err => console.log(err, id))
+            const indexToRemove = this.table.findIndex(item => item.conid === id)
+            this.table.splice(indexToRemove, 1)
+        }
+        setTimeout(() => {
+            this.live = false;
+        }, 3000);
+    },
+
+    inform(id, t) {
+        var i = 1
+        if (confirm('Είστε σίγουρος ότι έχει γίνει ενημέρωση;')) {
+            axios.patch(`/contracts/${id}`, {
+                inform: i
+            }).then(this.paginatedData[t].inform = i)
+        }
+
+    },
+
+    showModal(id) {
+        this.xlDemo = true;
+        for (var i = 0; i < this.table.length; i++) {
+            if (id == this.table[i].conid) {
+                this.con = this.table[i]
+            }
+        }
+        for (i = 0; i < this.table2.length; i++) {
+            if (this.con.custid == this.table2[i].cid) {
+                this.cus = this.table2[i]
+            }
+        }
+        axios.get('/files').then(res => {
+            var c = 0
+            this.files = []
+            for (var i = 0; i < res.data.length; i++) {
+                if (res.data[i].coid == id) {
+                    this.files[c] = res.data[i]
+                    c++
+                }
+            }
+        })
+
+        axios.get('/zimies').then(res => {
+            var t = 0
+            this.zimies = []
+            for (var i = 0; i < res.data.length; i++) {
+                if (res.data[i].contractid == id) {
+                    this.zimies[t] = res.data[i]
+                    t++
+                }
+            }
+        })
+
+        axios.get(`/omadika/${id}`).then(res => {
+            this.omadcus = res.data
+        })
+    },
+
+    showModal2(id) {
+        this.modal2 = true
+        for (var i = 0; i < this.table.length; i++) {
+            if (id == this.table[i].conid) {
+                this.con = this.table[i]
+            }
+        }
+        console.log(this.modal2)
+    },
+
+    closeModalHandler(id) {
+        this.modal2 = false
+        this.table.splice(id, 1)
+    },
+
+    downloadExcel() {
+        if (this.searchQuery.length === 0) {
+            var data = this.table
+        } else {
+            data = this.paginatedData;
+        }
+
+
+        const columnsToExport = [
+            { header: 'Αριθμός Συμβολαίου', key: 'conumber' },
+            { header: 'Όνομα Πελάτη', key: 'name' },
+            { header: 'Επίθετο Πελάτη', key: 'surname' },
+            { header: 'Ασφαλιστική', key: 'iname' },
+            { header: 'Κλάδος', key: 'bname' },
+            { header: 'Χαρακτηριστικό', key: 'pinakida' },
+            { header: 'Ημερομηνία Εναρξης', key: 'startdate' },
+            { header: 'Ημερομηνία Λήξης', key: 'enddate' },
+            { header: 'Καθαρά', key: 'clear' },
+            { header: 'Μεικτά', key: 'mikta' },
+            { header: 'Προμήθεια', key: 'promithia' },
+        ];
+
+        // Extract only the selected columns from the data
+        const filteredData = data.map(item => {
+            const filteredItem = {};
+            columnsToExport.forEach(column => {
+                filteredItem[column.header] = item[column.key];
+            });
+            return filteredItem;
+        });
+
+        // Create a worksheet with custom columns and headers
+        const ws = XLSX.utils.json_to_sheet(filteredData, { header: columnsToExport.map(column => column.header) });
+
+        // Create a new workbook and append the worksheet
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+        // Save the workbook as an Excel file
+        XLSX.writeFile(wb, 'Συμβόλαια-Λήξη.xlsx');
+
+    },
+
+},
+components: { CTableBody, CButton, CIcon, ConModal, reloadModal },
+setup() {
+    return {
+        icon,
+    }
+},
 }
 </script>
 
