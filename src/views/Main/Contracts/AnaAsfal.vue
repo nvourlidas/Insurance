@@ -10,6 +10,10 @@
             <CIcon :icon="icon.cilClipboard" class="flex-shrink-0 me-2" width="24" height="24" />
             Σύνολο Συμβολαίων: <b>{{ sunolo }}</b>
         </CButton>
+        <CButton color="dark" variant="outline" disabled style="margin-right: 20px; padding: 10px;">
+            <CIcon :icon="icon.cilEuro" class="flex-shrink-0 me-2" width="24" height="24" />
+            Συνολικός Τζίρος: <b>{{ s }}</b>
+        </CButton>
         <CButton @click="downloadExcel" class="excel" style="border: 1px solid; padding: 7px 20px;">
             <CIcon :icon="icon.cilAlignLeft" size="xl" style="margin-right: 7px;"></CIcon> Excel
         </CButton>
@@ -30,7 +34,7 @@
                 <CTableHeaderCell scope="col">#</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Αριθμός Συμβολαίου</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ονοματεπώνυμο Πελάτη</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Ασφαλιστική</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Κλάδος</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Χαρακτηριστικό</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ημερομηνία Λήξης</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
@@ -47,7 +51,7 @@
                         <p v-if="e.cid == entry.custid">{{ e.name }} {{ e.surname }}</p>
                     </div>
                 </CTableDataCell>
-                <CTableDataCell>{{ entry.iname }}</CTableDataCell>
+                <CTableDataCell>{{ entry.bname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
                 <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
                 <CTableDataCell>
@@ -127,6 +131,7 @@ export default {
             zimies: [],
             live: false,
             omadcus: [],
+            s:'',
         };
     },
     created() {
@@ -184,14 +189,17 @@ export default {
         getTable: function () {
             axios.get('/contracts-customer').then(res => {
                 var j = 0
+                var k=0;
                 this.table = []
                 for (var i = 0; i < res.data.length; i++) {
                     if (res.data[i].inid == this.asfalid) {
                         this.table[j] = res.data[i]
+                        k += parseInt(res.data[i].mikta)
                         j++
                     }
                 }
                 this.sunolo = this.table.length
+                this.s = k.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             })
         },
 

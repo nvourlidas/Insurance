@@ -148,9 +148,8 @@ export default {
                         this.afm = '',
                         this.phone = '',
                         this.tk = '',
-                        this.birthdate = '',
-                        this.gender = '',
-                        this.status = ''
+                        this.birthdate = ''
+                        
                 }
 
             }

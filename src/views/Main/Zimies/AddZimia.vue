@@ -24,7 +24,7 @@
                             </option>
                         </CFormSelect>
                     </CCol>
-
+            
                 </CRow>
                 <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
                     <CCol md>
@@ -102,6 +102,7 @@ export default {
             searchQuery: '',
             searchQuery2: '',
             filtercon: [],
+            omadika: [],
         };
     },
     setup() {
@@ -143,14 +144,14 @@ export default {
                     customerid: this.cid,
                     poso: this.poso,
                     contractid: this.conid,
-                    status: '-',
+                    status: 1,
                     inputdate: '-'
                 }).then(res => {
-                    setTimeout(() => {this.$router.push('/MZimies')}, 1000)
+                    setTimeout(() => { this.$router.push('/MZimies') }, 1000)
                     this.live = true
                     console.log(res)
-                    })
-                    .catch(err => {console.log(err), this.live2 = true})
+                })
+                    .catch(err => { console.log(err), this.live2 = true })
 
                 this.znumber = ''
                 this.asfal = ''
@@ -162,7 +163,7 @@ export default {
                 this.cfile = ''
                 this.todayDate = new Date()
 
-                
+
 
 
             }
@@ -181,10 +182,18 @@ export default {
             axios.get('/contracts-customer').then(res => {
                 this.con = res.data
             })
+
+            axios.get('/omadika').then(res => {
+                this.omadika = res.data
+            })
         },
 
         changecon() {
-            this.filtercon = this.con.filter(obj => obj.custid == this.cid)
+            const arr1 = this.con.filter(obj => obj.custid == this.cid)
+            const arr2 = this.omadika.filter(item2 => item2.cuid == this.cid)
+
+            this.filtercon  = [...arr1, ... arr2]
+            
         },
 
         getins() {
