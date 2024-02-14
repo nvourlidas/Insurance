@@ -157,6 +157,7 @@
                 </CButton>
             </CCardFooter>
         </CForm>
+        
     </CCard>
 </template>
 
@@ -375,7 +376,6 @@ export default {
                 this.paydate = this.enddate
                 this.ispaid = 1
             }
-
         },
     },
 

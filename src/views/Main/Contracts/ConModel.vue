@@ -43,6 +43,7 @@
                                     <CTableHeaderCell scope="col">Μεικτά</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Προμήθεια</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Μέθοδος Πληρωμής</CTableHeaderCell>
+                                    <CTableHeaderCell scope="col" v-if="con.paymentmethod != 4">Ημερομηνία Επόμενης Πληρωμής</CTableHeaderCell>
                                     <CTableHeaderCell scope="col">Ομαδικό</CTableHeaderCell>
                                     <CTableHeaderCell scope="col" v-if="mod == 1">Επεξεργασία</CTableHeaderCell>
                                 </CTableRow>
@@ -64,6 +65,7 @@
                                     <CTableDataCell v-if="con.paymentmethod == 2">3μηνη</CTableDataCell>
                                     <CTableDataCell v-if="con.paymentmethod == 3">6μηνη</CTableDataCell>
                                     <CTableDataCell v-if="con.paymentmethod == 4">'Εως Λήξη Συμβολαίου</CTableDataCell>
+                                    <CTableDataCell v-if="con.paymentmethod != 4">{{ con.paydate }}</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 2">ΟΧΙ</CTableDataCell>
                                     <CTableDataCell v-if="mod == 1">

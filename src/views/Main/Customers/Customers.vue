@@ -298,10 +298,6 @@ export default {
             XLSX.writeFile(wb, 'Πελάτες.xlsx');
         },
 
-        print() {
-            window.print()
-        }
-
     },
 
     components: { CTableBody, CButton, CIcon, CusModal },
