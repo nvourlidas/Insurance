@@ -110,7 +110,8 @@ export default {
                     ispaid: this.ispaid,
                     clear: this.clean,
                     mikta: this.mikta,
-                    promithia: this.prom
+                    promithia: this.prom,
+                    inform: 0
                 }).then(this.$emit('reload', id))
                 this.upload(id)
             }

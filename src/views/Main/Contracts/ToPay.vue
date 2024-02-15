@@ -317,10 +317,10 @@ export default {
                 newDate = format(newDate, 'yyyy-MM-dd')
                 
             }
-
             if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Ανανέωση;")){
                 axios.patch(`/contracts/${id}`, {
                     paydate: newDate,
+                    inform: 0
                 }).then(this.table[t].paydate = newDate)
             }
 
