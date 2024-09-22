@@ -73,6 +73,13 @@
                         </CFormSelect>
                     </CCol>
                 </CRow>
+                <CRow :xs="{ gutter: 2 }" style="padding: 20px;">
+                    <CCol md>
+                        <CFormLabel style="font-size: 20px; font-weight: bold;">Ημερομηνία Διπλώματος</CFormLabel>
+                        <VueDatePicker v-model="licenseDate" placeholder="Ημερομηνία Διπλώματος" format="dd-MM-yyyy"
+                            model-type="yyyy-MM-dd"></VueDatePicker>
+                    </CCol>
+                </CRow>
             </CCardBody>
             <CCardFooter style="text-align: center; padding: 20px;">
                 <CButton type="submit" size="lg" color="primary">
@@ -104,6 +111,7 @@ export default {
             birthdate: '',
             gender: 'A',
             status: 'A',
+            licenseDate: '',
             live: false,
             live2: false,
             live3: false,
@@ -137,7 +145,8 @@ export default {
                         postcode: this.tk,
                         property: this.status,
                         birthday: this.birthdate,
-                        afm: this.afm
+                        afm: this.afm,
+                        licenseDate: this.licenseDate
                     }).then(this.live = true)
                         .catch(err => { console.log(err), this.live2 = true })
 
@@ -148,7 +157,8 @@ export default {
                         this.afm = '',
                         this.phone = '',
                         this.tk = '',
-                        this.birthdate = ''
+                        this.birthdate = '',
+                        this.licenseDate = ''
                         
                 }
 

@@ -36,7 +36,8 @@
                                 <CTableHeaderCell scope="col">Σταθερό</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Φύλο</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Τ.Κ.</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Ημερομηνία Γέννησης</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Ημ. Γέννησης</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Ημ. Διπλώματος</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Ιδιότητα</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Επεξεργασία</CTableHeaderCell>
                             </CTableRow>
@@ -51,7 +52,8 @@
                                 <CTableDataCell v-if="cus.gender == 'A'">Άνδρας</CTableDataCell>
                                 <CTableDataCell v-if="cus.gender == 'G'">Γυναίκα</CTableDataCell>
                                 <CTableDataCell>{{ cus.postcode }}</CTableDataCell>
-                                <CTableDataCell>{{ cus.birthday }}</CTableDataCell>
+                                <CTableDataCell>{{ formatdate(cus.birthday) }}</CTableDataCell>
+                                <CTableDataCell>{{ formatdate(cus.licenseDate) }}</CTableDataCell>
                                 <CTableDataCell v-if="cus.property == 'A'">Φυσικό Πρόσωπο</CTableDataCell>
                                 <CTableDataCell v-if="cus.property == 'N'">Νομικό Πρόσωπο</CTableDataCell>
                                 <CTableDataCell>
@@ -90,6 +92,16 @@
                         <div class="edit">
                             <CFormLabel style="margin-right: 5px; margin-left: 5px;">Σταθερό</CFormLabel>
                             <CFormInput type="text" :placeholder="table.phone" v-model="table.phone"></CFormInput>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Γέννησης</CFormLabel>
+                            <VueDatePicker v-model="table.birthday" placeholder="Ημερομηνία Γέννησης" format="dd-MM-yyyy"
+                            model-type="yyyy-MM-dd"></VueDatePicker>
+                        </div>
+                        <div class="edit">
+                            <CFormLabel style="margin-right: 5px; margin-left: 5px;">Ημερομηνία Διπλώματος</CFormLabel>
+                            <VueDatePicker v-model="table.licenseDate" placeholder="Ημερομηνία Διπλώματος" format="dd-MM-yyyy"
+                            model-type="yyyy-MM-dd"></VueDatePicker>
                         </div>
                         <div class="edit">
                             <CFormLabel style="margin-right: 5px; margin-left: 5px;">Τ.Κ.</CFormLabel>
@@ -258,8 +270,8 @@ import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import OffCanvas from './OffCanvas.vue';
 import axios from 'axios';
-// import VueDatePicker from '@vuepic/vue-datepicker';
-// import '@vuepic/vue-datepicker/dist/main.css';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 // //import { format } from 'date-fns';
 // import moment from 'moment';
 
@@ -331,6 +343,22 @@ export default {
             this.vis = false
         },
 
+        formatdate(date2) {
+            const date = new Date(date2);
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const year = date.getFullYear();
+
+            const formattedDate = `${day}-${month}-${year}`;
+
+            if(date2 == '1899-11-29T22:25:08.000Z'){
+                return '00-00-0000'
+            }else{
+            return formattedDate
+            }
+        },
+
 
         getconbody(id) {
             axios.get('/contracts-customer').then(res => {
@@ -377,6 +405,15 @@ export default {
         upd() {
             var id = this.cus.cid
 
+            if(this.table.birthday == '') {
+                this.table.birthday = this.cus.birthday
+            }
+
+            console.log(this.table.birthday)
+            if(this.table.licenseDate == '') {
+                this.table.licenseDate = this.cus.licenseDate
+            }
+            console.log(this.table.licenseDate)
 
             axios.patch(`/customer/${id}`, {
                 name: this.table.name,
@@ -386,7 +423,9 @@ export default {
                 cellphone: this.table.cellphone,
                 phone: this.table.phone,
                 postcode: this.table.postcode,
-                property: this.table.property
+                property: this.table.property,
+                birthday: this.table.birthday,
+                licenseDate: this.table.licenseDate
             }).then(this.vis = false)
         },
 
@@ -415,7 +454,7 @@ export default {
                 });
         }
     },
-    components: { CButton, CIcon, OffCanvas, CRow }
+    components: { CButton, CIcon, OffCanvas, CRow , VueDatePicker}
 }
 </script>
 
