@@ -43,7 +43,7 @@
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.bname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
-                <CTableDataCell>{{ entry.enddate }}</CTableDataCell>
+                <CTableDataCell>{{ formatdate(entry.enddate) }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
                         <CIcon :icon="icon.cilDescription" height="32"></CIcon>
@@ -165,6 +165,18 @@ export default {
     },
 
     methods: {
+
+        formatdate(date2) {
+            const date = new Date(date2);
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const year = date.getFullYear();
+
+            const formattedDate = `${day}-${month}-${year}`;
+
+            return formattedDate
+        },
         parseDate(dateString) {
             const [day, month, year] = dateString.split('-');
             return new Date(`${year}-${month}-${day}`);

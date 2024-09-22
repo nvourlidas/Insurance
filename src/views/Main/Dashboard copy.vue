@@ -57,23 +57,24 @@
     </CCol>
   </CRow>
   <FullCalendar style="margin-top: 50px;"></FullCalendar>
+  <Test></Test>
 </template>
 
 <script>
 import axios from 'axios';
-//import { addDays, format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 // import Calendar from './Calendar.vue'
 import FullCalendar from './FullCalendar.vue';
-
+import Test from './test.vue';
 
 export default {
   components: {
     CIcon,
     FullCalendar,
-
-  },
+    Test
+},
   setup() {
     return {
       icon,
@@ -85,15 +86,13 @@ export default {
       totalCus: '',
       table2: [],
       totalCon: '',
-      ligoun: 0,
-      topay: 0,
-      today: new Date().toISOString().replace(/T.*$/, ''),
+      ligoun: '0',
+      topay: '0',
+      todayDate: new Date(),
       futureDate: null,
       smikta: 0,
       sprom: 0,
       stm: 0,
-      enddates: [],
-      paydates: [],
 
     }
   },
@@ -112,52 +111,51 @@ export default {
       })
     },
     getCon() {
-      const todayDate = new Date(this.today);
-      const nextMonthDate = new Date(todayDate);
-      nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-      this.futureDate = nextMonthDate.toISOString().replace(/T.*$/, '');
+      this.futureDate = addDays(this.todayDate, 31);
+      this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
+      this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
 
       axios.get('/contracts-customer').then(res => {
         this.table2 = res.data
         this.totalCon = res.data.length
+        var j = 0
+        var t = 0
+        for (var i = 0; i < res.data.length; i++) {
+          var dateParts = res.data[i].enddate.split('-');
+          var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+
+          var date = new Date(formattedDate);
+          var dat = format(date, 'yyyy-MM-dd')
 
 
-        for (var i = 0; i < this.totalCon; i++) {
-          const endDateStr = this.table2[i].enddate;
-          const payDateStr = this.table2[i].paydate;
+          if (dat <= this.futureDate) { 
+            j += 1
 
-          if (endDateStr) { // Check if enddate is not null or undefined
-            const endDate = new Date(endDateStr);
-
-            if (!isNaN(endDate)) { // Check if the date is valid
-              this.enddates[i] = endDate.toISOString().replace(/T.*$/, '');
-              if (this.enddates[i] < this.futureDate) {
-                this.ligoun += 1
-              }
-            } else {
-              console.error(`Invalid date value at index ${i}: ${endDateStr}`);
-            }
-          } else {
-            console.warn(`Skipping null or undefined enddate at index ${i}`);
           }
 
-          if (payDateStr) { // Check if enddate is not null or undefined
-
-            const payDate = new Date(payDateStr);
-
-            if (!isNaN(payDate)) { // Check if the date is valid
-              this.paydates[i] = payDate.toISOString().replace(/T.*$/, '');
-              if (this.paydates[i] < this.futureDate && res.data[i].ispaid === 0 && res.data[i].paymentmethod != 4) {
-                this.topay += 1
-              }
-            } else {
-              console.error(`Invalid date value at index ${i}: ${endDateStr}`);
-            }
-          } else {
-            console.warn(`Skipping null or undefined enddate at index ${i}`);
+          if (j > 0) {
+            this.ligoun = j
           }
+          var dateParts2 = res.data[i].paydate.split('-');
+          var formattedDate2 = dateParts2[2] + '-' + dateParts2[1] + '-' + dateParts2[0];
+
+          var date2 = new Date(formattedDate2);
+          var dat2 = format(date2, 'yyyy-MM-dd')
+
+          if (dat2 <= this.futureDate && res.data[i].ispaid == 0 && res.data[i].paymentmethod != 4) {
+            if (dat <= this.futureDate) {
+              console.log(dat)
+            } else {
+              t += 1
+            }
+          }
+          if (t > 0) {
+            this.topay = t
+          }
+
+
+
         }
-
 
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so we add 1
@@ -178,7 +176,6 @@ export default {
           this.stm = numb2.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
         }
 
-
         var numb = 0
         var numbe = 0
         for (i = 0; i < res.data.length; i++) {
@@ -187,8 +184,6 @@ export default {
           this.sprom = numb.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
           this.smikta = numbe.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
         }
-
-
       })
 
     },

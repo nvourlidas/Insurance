@@ -57,7 +57,7 @@
                                     </CTableDataCell>
                                     <CTableDataCell>{{ con.pinakida }}</CTableDataCell>
                                     <CTableDataCell>{{ con.startdate }}</CTableDataCell>
-                                    <CTableDataCell>{{ con.enddate }}</CTableDataCell>
+                                    <CTableDataCell>{{ formatdate(con.enddate) }}</CTableDataCell>
                                     <CTableDataCell>{{ con.clear }}</CTableDataCell>
                                     <CTableDataCell>{{ con.mikta }}</CTableDataCell>
                                     <CTableDataCell>{{ con.promithia }}</CTableDataCell>
@@ -65,7 +65,7 @@
                                     <CTableDataCell v-if="con.paymentmethod == 2">3μηνη</CTableDataCell>
                                     <CTableDataCell v-if="con.paymentmethod == 3">6μηνη</CTableDataCell>
                                     <CTableDataCell v-if="con.paymentmethod == 4">'Εως Λήξη Συμβολαίου</CTableDataCell>
-                                    <CTableDataCell v-if="con.paymentmethod != 4">{{ con.paydate }}</CTableDataCell>
+                                    <CTableDataCell v-if="con.paymentmethod != 4">{{ formatdate(con.paydate) }}</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 1">NAI</CTableDataCell>
                                     <CTableDataCell v-if="con.omadiko == 2">ΟΧΙ</CTableDataCell>
                                     <CTableDataCell v-if="mod == 1">
@@ -432,6 +432,18 @@ export default {
                     }
                 }).then(this.$emit('close')).catch(err => console.log(err, id))
             }
+        },
+
+        formatdate(date2) {
+            const date = new Date(date2);
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const year = date.getFullYear();
+
+            const formattedDate = `${day}-${month}-${year}`;
+
+            return formattedDate
         },
 
         upd() {

@@ -25,13 +25,12 @@
                 <CTableHeaderCell scope="col">Ημερομηνία Επόμενης Πληρωμής</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Λεπτομέριες</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Ενημερώθηκε</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Πληρωμή</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Πληρωμή</CTableHeaderCell>             
             </CTableRow>
         </CTableHead>
         <CTableBody>
             <CTableRow v-for="(entry, id) in paginatedData" :item="entry" :key="id" style="text-align: center;">
-                <CTableDataCell :class="{ 'red': checkdate2(entry.paydate), 'yellow': checkdate(entry.paydate) }">{{ id + 1
-                }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.paydate), 'yellow': checkdate(entry.paydate) }">{{ id + 1 }}</CTableDataCell>
                 <CTableDataCell>{{ entry.conumber }}</CTableDataCell>
                 <CTableDataCell>
                     <div v-for="(e, id2) in table2" :item="e" :key="id2">
@@ -41,8 +40,7 @@
                 <CTableDataCell>{{ entry.email }}</CTableDataCell>
                 <CTableDataCell>{{ entry.iname }}</CTableDataCell>
                 <CTableDataCell>{{ entry.pinakida }}</CTableDataCell>
-                <CTableDataCell :class="{ 'red': checkdate2(entry.paydate), 'yellow': checkdate(entry.paydate) }">{{
-                    formatdate(entry.paydate) }}</CTableDataCell>
+                <CTableDataCell :class="{ 'red': checkdate2(entry.paydate), 'yellow': checkdate(entry.paydate) }">{{ entry.paydate }}</CTableDataCell>
                 <CTableDataCell>
                     <CButton style="color: rgb(65, 45, 165);" @click="showModal(entry.conid)">
                         <CIcon :icon="icon.cilDescription" height="32"></CIcon>
@@ -51,7 +49,7 @@
                 <CTableDataCell>
                     <!-- <CFormSwitch v-if="entry.inform == 0" @click="inform(entry.conid,id)" id="formSwitchCheckDefault" size="xl"/>
                     <CFormSwitch v-if="entry.inform == 1" disabled id="formSwitchCheckDefault"/> -->
-                    <CButton v-if="entry.inform == 0" style="color: rgb(8, 8, 8);" @click="inform(entry.conid, id)">
+                    <CButton v-if="entry.inform == 0" style="color: rgb(8, 8, 8);" @click="inform(entry.conid,id)">
                         <CIcon :icon="icon.cilToggleOff" height="32"></CIcon>
                     </CButton>
                     <CButton v-if="entry.inform == 1" style="color: rgb(21, 161, 8); border: none;" disabled>
@@ -62,7 +60,7 @@
                     <CButton style="color: rgb(41, 177, 64);" @click="pay(entry.conid, id)">
                         <CIcon :icon="icon.cilCash" height="32"></CIcon>
                     </CButton>
-                </CTableDataCell>
+                </CTableDataCell>             
             </CTableRow>
             <CTableRow v-if="paginatedData.length === 0" style="text-align: center;">
                 <CTableDataCell colspan="8">Δεν υπάρχουν διαθέσιμα δεδομένα στον πίνακα</CTableDataCell>
@@ -94,8 +92,7 @@
             </CPagination>
         </CCol>
     </CRow>
-    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies"
-        :omadcus="omadcus">
+    <ConModal :visible="xlDemo" @close="xlDemo = false" :cus="cus" :con="con" :files="files" :mod="0" :zimies="zimies" :omadcus="omadcus">
     </ConModal>
 </template>
 <script>
@@ -104,7 +101,7 @@ import axios from 'axios';
 import { CIcon } from '@coreui/icons-vue';
 import * as icon from '@coreui/icons';
 import ConModal from './ConModel.vue'
-//import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 
 
 
@@ -122,56 +119,45 @@ export default {
             itemsPerPage: 20,
             searchQuery: '',
             sunolo: '',
-            todayDate: new Date().toISOString().replace(/T.*$/, ''),
+            todayDate: new Date(),
             futureDate: null,
             futureDate2: null,
             files: [],
             zimies: [],
             omadcus: [],
-            enddates: [],
         };
     },
     created() {
-        const todayDate = new Date(this.todayDate);
-        const nextMonthDate = new Date(todayDate);
-        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-        this.futureDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-
-
-        const nextDate = new Date(todayDate);
-        nextDate.setDate(nextDate.getDate() + 6);
-        this.futureDate2 = nextDate.toISOString().replace(/T.*$/, '');
-
-
-
         axios.get('/contracts-customer').then(res => {
+            this.futureDate = addDays(this.todayDate, 31);
+            this.futureDate2 = addDays(this.todayDate, 6);
+            this.futureDate = format(this.futureDate, 'yyyy-MM-dd');
+            this.futureDate2 = format(this.futureDate2, 'yyyy-MM-dd');
+            this.todayDate = format(this.todayDate, 'yyyy-MM-dd')
 
-            var j = 0;
+            var j = 0
             for (var i = 0; i < res.data.length; i++) {
-                const endDateStr = res.data[i].paydate;
+                var dateParts = res.data[i].paydate.split('-');
+                var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+                var date = new Date(formattedDate);
+                var dat = format(date, 'yyyy-MM-dd')
 
-                if (endDateStr) { // Check if enddate is not null or undefined
-                    const endDate = new Date(endDateStr);
-
-
-                    if (!isNaN(endDate)) { // Check if the date is valid
-                        this.enddates[i] = endDate.toISOString().replace(/T.*$/, '');
-
-
-                        if (this.enddates[i] <= this.futureDate && res.data[i].ispaid === 0 && res.data[i].paymentmethod != 4) {
-                            this.table[j] = res.data[i]
-                            j++
-
-                        }
+                var dateParts2 = res.data[i].enddate.split('-');
+                var formattedDate2 = dateParts2[2] + '-' + dateParts2[1] + '-' + dateParts2[0];
+                var date2 = new Date(formattedDate2);
+                var dat2 = format(date2, 'yyyy-MM-dd')
+                if (dat <= this.futureDate && res.data[i].ispaid === 0 && res.data[i].paymentmethod != 4) {
+                    if (dat2 <= this.futureDate) {
+                        console.log(dat2)
                     } else {
-                        console.error(`Invalid date value at index ${i}: ${endDateStr}`);
+                        this.table[j] = res.data[i]
+                        j++
                     }
-                } else {
-                    console.warn(`Skipping null or undefined enddate at index ${i}`);
                 }
+
             }
             this.sunolo = this.table.length
-        })
+        });
         axios.get('/customer').then(res => { this.table2 = res.data })
 
     },
@@ -181,8 +167,8 @@ export default {
     computed: {
         sortedArray() {
             return this.table.slice().sort((a, b) => {
-                const dateA = new Date(a.paydate);
-                const dateB = new Date(b.paydate);
+                const dateA = this.parseDate(a.paydate);
+                const dateB = this.parseDate(b.paydate);
                 return dateA - dateB;
             });
         },
@@ -213,24 +199,24 @@ export default {
         },
 
         checkdate(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
 
-            const formattedDate = new Date(date).toISOString().split("T")[0];
-
-            if (formattedDate >= this.todayDate && formattedDate <= this.futureDate2) {
+            if(formattedDate >= this.todayDate && formattedDate <= this.futureDate2){
                 return true
-            } else {
+            }else {
                 return false
             }
 
         },
 
         checkdate2(date) {
+            const parts = date.split("-"); // Split the string into day, month, and year parts
+            const formattedDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toISOString().split("T")[0];
 
-            const formattedDate = new Date(date).toISOString().split("T")[0];
-
-            if (formattedDate <= this.todayDate) {
+            if(formattedDate <= this.todayDate){
                 return true
-            } else {
+            }else {
                 return false
             }
 
@@ -259,11 +245,11 @@ export default {
         },
 
 
-        inform(id, t) {
-            var i = 1
+        inform(id,t) {
+            var i =1
             if (confirm('Είστε σίγουρος ότι έχει γίνει ενημέρωση;')) {
                 axios.patch(`/contracts/${id}`, {
-                    inform: i
+                   inform: i
                 }).then(this.paginatedData[t].inform = i)
             }
         },
@@ -307,57 +293,31 @@ export default {
             })
         },
 
-        formatdate(date2) {
-            const date = new Date(date2);
-
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const year = date.getFullYear();
-
-            const formattedDate = `${day}-${month}-${year}`;
-
-            return formattedDate
-        },
-
         pay(id, t) {
             const con = this.table.find(obj => obj.conid === id)
-            const paydate = new Date(con.paydate);
-            const nextMonthDate = new Date(paydate);
-            const today = new Date();
-            var newDate = ''
+            const parts = con.paydate.split("-");
+            var month = parseInt(parts[1].padStart(2, '0'), 10)
+            var year = parseInt(parts[2].padStart(2, '0'), 10)
+            var day = parseInt(parts[0].padStart(2, '0'), 10)
+            var date = year + '-' + month + '-' + day
+            var newDate = new Date(date);
 
 
 
             if (con.paymentmethod == 1) {
-                if (today > paydate) {
-                    nextMonthDate.setMonth(today.getMonth() + 1);
-                    newDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-                } else {
-                    nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-                    newDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-                }
-
-
-            } else if (con.paymentmethod == 2) {
-                if (today > paydate) {
-                    nextMonthDate.setMonth(today.getMonth() + 3);
-                    newDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-                } else {
-                    nextMonthDate.setMonth(nextMonthDate.getMonth() + 3);
-                    newDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-                }
-
-            } else if (con.paymentmethod == 3) {
-                if (today > paydate) {
-                    nextMonthDate.setMonth(today.getMonth() + 6);
-                    newDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-                } else {
-                    nextMonthDate.setMonth(nextMonthDate.getMonth() + 6);
-                    newDate = nextMonthDate.toISOString().replace(/T.*$/, '');
-                }
-
+                newDate.setMonth(newDate.getMonth() + 1);
+                newDate = format(newDate, 'yyyy-MM-dd')
+                
+            }else if (con.paymentmethod == 2) {
+                newDate.setMonth(newDate.getMonth() + 3);
+                newDate = format(newDate, 'yyyy-MM-dd')
+                
+            }else if (con.paymentmethod == 3) {
+                newDate.setMonth(newDate.getMonth() + 6);
+                newDate = format(newDate, 'yyyy-MM-dd')
+                
             }
-            if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Ανανέωση;")) {
+            if (confirm("Είστε σίγουρος ότι θέλετε να γίνει Ανανέωση;")){
                 axios.patch(`/contracts/${id}`, {
                     paydate: newDate,
                     inform: 0
@@ -421,7 +381,7 @@ export default {
             //     }
             // }
 
-
+            
         },
 
 
